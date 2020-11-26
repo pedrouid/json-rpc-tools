@@ -3,12 +3,7 @@ import * as chai from "chai";
 import Store from "@pedrouid/iso-store";
 import { JsonRpcSigner } from "@json-rpc-tools/signer";
 import { JsonRpcRequest } from "@json-rpc-tools/utils";
-import {
-  IJsonRpcAuthenticator,
-  JsonRpcAuthenticator,
-  JsonRpcAuthenticatorConfig,
-  JsonSchema,
-} from "../src";
+import { IJsonRpcAuthenticator, JsonRpcAuthenticator, JsonRpcConfig, JsonSchema } from "../src";
 
 const ETHEREUM_CHAIN_ID = "eip155:1";
 
@@ -25,7 +20,7 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
   },
 };
 
-const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcAuthenticatorConfig = {
+const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
   context: ETHEREUM_CHAIN_ID,
   methods: {
     eth_sendTransaction: {

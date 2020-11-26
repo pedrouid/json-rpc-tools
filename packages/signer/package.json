@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@json-rpc-tools/provider": "^1.0.0",
+    "@json-rpc-tools/types": "^1.0.0",
     "@json-rpc-tools/utils": "^1.0.0"
   },
   "devDependencies": {

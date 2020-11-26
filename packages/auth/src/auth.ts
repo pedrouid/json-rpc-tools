@@ -11,19 +11,14 @@ import {
 import { IStore } from "@pedrouid/iso-store";
 
 import { PendingRequests } from "./pending";
-import {
-  IJsonRpcAuthenticator,
-  ISigner,
-  JsonRpcAuthenticatorConfig,
-  JsonRpcMethodConfig,
-} from "./types";
+import { IJsonRpcAuthenticator, IJsonRpcSigner, JsonRpcConfig, JsonRpcMethodConfig } from "./types";
 
 export class JsonRpcAuthenticator extends IJsonRpcAuthenticator {
   public events = new EventEmitter();
 
   public pending: PendingRequests;
 
-  constructor(public config: JsonRpcAuthenticatorConfig, public signer: ISigner, store: IStore) {
+  constructor(public config: JsonRpcConfig, public signer: IJsonRpcSigner, store: IStore) {
     super(config, signer, store);
     this.config = config;
     this.pending = new PendingRequests(store, config.context);
