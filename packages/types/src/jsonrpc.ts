@@ -15,12 +15,15 @@ export interface JsonRpcMethodConfig {
   userApproval?: boolean;
 }
 export interface JsonRpcConfig {
-  context: string;
-  accounts: {
-    method: string;
-  };
   methods: {
     [method: string]: JsonRpcMethodConfig;
+  };
+}
+
+export interface JsonRpcAuthConfig extends JsonRpcConfig {
+  chainId: string;
+  accounts: {
+    method: string;
   };
 }
 

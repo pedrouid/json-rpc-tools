@@ -16,7 +16,7 @@ import { PendingRequests } from "./pending";
 import {
   IJsonRpcAuthenticator,
   IJsonRpcProvider,
-  JsonRpcConfig,
+  JsonRpcAuthConfig,
   JsonRpcMethodConfig,
 } from "./types";
 
@@ -25,9 +25,9 @@ export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
 
   public pending: PendingRequests;
 
-  constructor(public config: JsonRpcConfig, public provider: IJsonRpcProvider, store?: IStore) {
+  constructor(public config: JsonRpcAuthConfig, public provider: IJsonRpcProvider, store?: IStore) {
     this.config = config;
-    this.pending = new PendingRequests(config.context, store);
+    this.pending = new PendingRequests(config.chainId, store);
   }
 
   public on(event: string, listener: any): void {

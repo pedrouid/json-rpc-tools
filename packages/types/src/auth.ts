@@ -1,10 +1,10 @@
-import { JsonRpcConfig, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { JsonRpcAuthConfig, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
 import { IEvents, IStore } from "./misc";
 import { IJsonRpcProvider } from "./provider";
 
 export abstract class IPendingRequests {
   public abstract pending: JsonRpcRequest[];
-  constructor(public context: string, public store?: IStore) {}
+  constructor(public chainId: string, public store?: IStore) {}
   public abstract init(): Promise<void>;
   public abstract set(request: JsonRpcRequest): Promise<void>;
   public abstract get(id: number): Promise<JsonRpcRequest | undefined>;
@@ -14,7 +14,7 @@ export abstract class IPendingRequests {
 export abstract class IJsonRpcAuthenticator extends IEvents {
   public abstract pending: IPendingRequests;
 
-  constructor(public config: JsonRpcConfig, public provider: IJsonRpcProvider, store?: IStore) {
+  constructor(public config: JsonRpcAuthConfig, public provider: IJsonRpcProvider, store?: IStore) {
     super();
   }
 

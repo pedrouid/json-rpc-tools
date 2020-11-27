@@ -5,9 +5,9 @@ import { IPendingRequests } from "./types";
 
 export class PendingRequests implements IPendingRequests {
   public pending: JsonRpcRequest[] = [];
-  constructor(public context: string, public store?: IStore) {
+  constructor(public chainId: string, public store?: IStore) {
     this.store = store;
-    this.context = context;
+    this.chainId = chainId;
   }
 
   public async init(): Promise<void> {
@@ -31,7 +31,7 @@ export class PendingRequests implements IPendingRequests {
   // -- Private ----------------------------------------------- //
 
   private getStoreKey() {
-    return `${this.context}:jsonrpc:pending`;
+    return `${this.chainId}:jsonrpc:pending`;
   }
 
   private async persist() {
