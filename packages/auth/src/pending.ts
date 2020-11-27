@@ -3,10 +3,9 @@ import { IStore } from "@pedrouid/iso-store";
 
 import { IPendingRequests } from "./types";
 
-export class PendingRequests extends IPendingRequests {
+export class PendingRequests implements IPendingRequests {
   public pending: JsonRpcRequest[] = [];
-  constructor(public store: IStore, public context: string) {
-    super(store);
+  constructor(public context: string, public store?: IStore) {
     this.store = store;
     this.context = context;
   }
@@ -21,11 +20,11 @@ export class PendingRequests extends IPendingRequests {
   }
 
   public async get(id: number): Promise<JsonRpcRequest | undefined> {
-    return this.pending.find((request) => request.id === id);
+    return this.pending.find(request => request.id === id);
   }
 
   public async delete(id: number): Promise<void> {
-    this.pending = this.pending.filter((request) => request.id !== id);
+    this.pending = this.pending.filter(request => request.id !== id);
     await this.persist();
   }
 
@@ -36,10 +35,12 @@ export class PendingRequests extends IPendingRequests {
   }
 
   private async persist() {
+    if (typeof this.store === "undefined") return;
     await this.store.set<JsonRpcRequest[]>(this.getStoreKey(), this.pending);
   }
 
   private async restore() {
+    if (typeof this.store === "undefined") return;
     this.pending = (await this.store.get<JsonRpcRequest[]>(this.getStoreKey())) || [];
   }
 }

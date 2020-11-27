@@ -2,15 +2,24 @@ import "mocha";
 import * as chai from "chai";
 import { formatJsonRpcRequest } from "@json-rpc-tools/utils";
 
-import { JsonRpcProvider } from "../src";
+import JsonRpcProvider from "../src";
 
 describe("@json-rpc-tools/provider", () => {
-  // ---------- Provider ----------------------------------------------- //
-
-  it("JsonRpcProvider", async () => {
-    const provider = new JsonRpcProvider("https://rpc.slock.it/mainnet");
-    const result = await provider.request(formatJsonRpcRequest("eth_chainId", []));
+  it("HTTP", async () => {
+    const provider = new JsonRpcProvider(`https://rpc.slock.it/mainnet`);
+    const request = formatJsonRpcRequest("eth_chainId", []);
+    const result = await provider.request(request);
     chai.expect(!!result).to.be.true;
     chai.expect(result).to.eql("0x1");
+  });
+
+  it("WS", async () => {
+    const provider = new JsonRpcProvider(`wss://staging.walletconnect.org`);
+    const request = formatJsonRpcRequest("bridge_subscribe", {
+      topic: "ca838d59a3a3fe3824dab9ca7882ac9a2227c5d0284c88655b261a2fe85db270",
+      ttl: 86400,
+    });
+    const result = await provider.request(request);
+    chai.expect(!!result).to.be.true;
   });
 });

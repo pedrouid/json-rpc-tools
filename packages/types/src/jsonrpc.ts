@@ -11,10 +11,14 @@ export interface JsonRpcMethodConfig {
 }
 export interface JsonRpcConfig {
   context: string;
+  accounts: {
+    method: string;
+  };
   methods: {
     [method: string]: JsonRpcMethodConfig;
   };
 }
+
 export interface JsonRpcRequest<T = any> {
   id: number;
   jsonrpc: string;

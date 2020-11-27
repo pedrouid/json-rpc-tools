@@ -7,21 +7,27 @@ import {
   INVALID_REQUEST,
   METHOD_NOT_FOUND,
   formatJsonRpcResult,
+  JsonRpcError,
+  formatJsonRpcRequest,
 } from "@json-rpc-tools/utils";
 import { IStore } from "@pedrouid/iso-store";
 
 import { PendingRequests } from "./pending";
-import { IJsonRpcAuthenticator, IJsonRpcSigner, JsonRpcConfig, JsonRpcMethodConfig } from "./types";
+import {
+  IJsonRpcAuthenticator,
+  IJsonRpcProvider,
+  JsonRpcConfig,
+  JsonRpcMethodConfig,
+} from "./types";
 
-export class JsonRpcAuthenticator extends IJsonRpcAuthenticator {
+export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
   public events = new EventEmitter();
 
   public pending: PendingRequests;
 
-  constructor(public config: JsonRpcConfig, public signer: IJsonRpcSigner, store: IStore) {
-    super(config, signer, store);
+  constructor(public config: JsonRpcConfig, public provider: IJsonRpcProvider, store?: IStore) {
     this.config = config;
-    this.pending = new PendingRequests(store, config.context);
+    this.pending = new PendingRequests(config.context, store);
   }
 
   public on(event: string, listener: any): void {
@@ -41,7 +47,8 @@ export class JsonRpcAuthenticator extends IJsonRpcAuthenticator {
   }
 
   public async getAccounts(): Promise<string[]> {
-    return this.signer.getAccounts();
+    const request = formatJsonRpcRequest(this.config.accounts.method, []);
+    return this.provider.request(request);
   }
 
   public supportsMethod(request: JsonRpcRequest): boolean {
@@ -59,19 +66,33 @@ export class JsonRpcAuthenticator extends IJsonRpcAuthenticator {
     return result.valid;
   }
 
-  public async resolve(request: JsonRpcRequest): Promise<JsonRpcResponse | undefined> {
-    if (!this.supportsMethod(request)) {
-      return formatJsonRpcError(request.id, METHOD_NOT_FOUND);
+  public async approve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
+    const error = this.findError(request);
+    if (typeof error !== "undefined") {
+      return error;
     }
-    if (!this.validateRequest(request)) {
-      return formatJsonRpcError(request.id, INVALID_REQUEST);
+    const result = await this.provider.request(request);
+    const response = formatJsonRpcResult(request.id, result);
+    this.events.emit(`${request.id}`, response);
+    return response;
+  }
+
+  public async resolve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
+    const error = this.findError(request);
+    if (typeof error !== "undefined") {
+      return error;
     }
     if (this.requiresApproval(request)) {
       await this.pending.set(request);
-      this.events.emit("required_user_approval", request);
-      return;
+      this.events.emit("pending_approval", request);
+      return new Promise((resolve, reject) => {
+        this.events.on(`${request.id}`, async (response: JsonRpcResponse) => {
+          await this.pending.delete(request.id);
+          resolve(response);
+        });
+      });
     }
-    const result = await this.signer.request(request);
+    const result = await this.provider.request(request);
     return formatJsonRpcResult(request.id, result);
   }
   // -- Private ----------------------------------------------- //
@@ -82,5 +103,15 @@ export class JsonRpcAuthenticator extends IJsonRpcAuthenticator {
       throw new Error(`JSON-RPC method not supported: ${method}`);
     }
     return jsonrpc;
+  }
+
+  private findError(request: JsonRpcRequest): JsonRpcError | undefined {
+    if (!this.supportsMethod(request)) {
+      return formatJsonRpcError(request.id, METHOD_NOT_FOUND);
+    }
+    if (!this.validateRequest(request)) {
+      return formatJsonRpcError(request.id, INVALID_REQUEST);
+    }
+    return;
   }
 }

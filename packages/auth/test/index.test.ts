@@ -1,7 +1,6 @@
 import "mocha";
 import * as chai from "chai";
-import Store from "@pedrouid/iso-store";
-import { JsonRpcSigner } from "@json-rpc-tools/signer";
+import { JsonRpcProvider } from "@json-rpc-tools/provider";
 import { JsonRpcRequest } from "@json-rpc-tools/utils";
 import { IJsonRpcAuthenticator, JsonRpcAuthenticator, JsonRpcConfig, JsonSchema } from "../src";
 
@@ -22,7 +21,24 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
 
 const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
   context: ETHEREUM_CHAIN_ID,
+  accounts: {
+    method: "eth_accounts",
+  },
   methods: {
+    eth_accounts: {
+      name: "eth_accounts",
+      description: "Exposes user account addresses",
+      params: {
+        type: "array",
+        items: {},
+      },
+      result: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+    },
     eth_sendTransaction: {
       name: "eth_sendTransaction",
       description: "Creates, signs, and sends a new transaction to the network",
@@ -39,6 +55,12 @@ const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
 };
 
 const TEST_JSON_RPC_REQUEST: { [method: string]: JsonRpcRequest } = {
+  eth_accounts: {
+    id: 1,
+    jsonrpc: "2.0",
+    method: "eth_accounts",
+    params: [],
+  },
   eth_sendTransaction: {
     id: 1,
     jsonrpc: "2.0",
@@ -66,9 +88,8 @@ const TEST_JSON_RPC_REQUEST: { [method: string]: JsonRpcRequest } = {
 describe("JsonRpcAuthenticator", () => {
   let ethereumAuthenticator: IJsonRpcAuthenticator;
   beforeAll(() => {
-    const signer = new JsonRpcSigner("https://api.mycryptoapi.com/eth");
-    const store = new Store();
-    ethereumAuthenticator = new JsonRpcAuthenticator(ETHEREUM_SIGNER_JSONRPC_CONFIG, signer, store);
+    const provider = new JsonRpcProvider(`https://rpc.slock.it/mainnet`);
+    ethereumAuthenticator = new JsonRpcAuthenticator(ETHEREUM_SIGNER_JSONRPC_CONFIG, provider);
   });
   it("init", async () => {
     chai.expect(!!ethereumAuthenticator).to.be.true;

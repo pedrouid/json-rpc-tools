@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@pedrouid/iso-store": "^1.0.4",
-    "@json-rpc-tools/signer": "^1.0.0",
+    "@json-rpc-tools/provider": "^1.0.0",
     "@json-rpc-tools/types": "^1.0.0",
     "@json-rpc-tools/utils": "^1.0.0",
     "jsonschema": "^1.4.0"

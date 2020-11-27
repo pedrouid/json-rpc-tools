@@ -1,4 +1,7 @@
-import { JsonRpcProvider as Provider } from "./provider";
+import Provider from "./provider";
 
-export const JsonRpcProvider = Provider;
+export * from "./http";
+export * from "./ws";
+export * from "./provider";
+
 export default Provider;

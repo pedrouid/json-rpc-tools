@@ -1,27 +1,31 @@
-import axios, { AxiosInstance } from "axios";
 import { EventEmitter } from "events";
 import {
   IJsonRpcProvider,
+  IJsonRpcConnection,
   JsonRpcRequest,
-  JsonRpcResponse,
-  isJsonRpcError,
+  JsonRpcResult,
 } from "@json-rpc-tools/utils";
+
+import { HttpConnection } from "./http";
+import { WsConnection } from "./ws";
+import { isHttpUrl } from "./url";
 
 export class JsonRpcProvider implements IJsonRpcProvider {
   public events = new EventEmitter();
 
-  private api: AxiosInstance;
+  public connection: IJsonRpcConnection;
 
   constructor(public url: string) {
     this.url = url;
-    this.api = axios.create({
-      baseURL: this.url,
-      timeout: 30000, // 30 secs
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
+    this.connection = this.setConnection(url);
+  }
+
+  public async connect(url = this.url): Promise<void> {
+    await this.open(url);
+  }
+
+  public async disconnect(): Promise<void> {
+    await this.close();
   }
 
   public on(event: string, listener: any): void {
@@ -36,20 +40,46 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     this.events.off(event, listener);
   }
 
-  public async connect(params?: any): Promise<void> {
-    // empty
+  public async request<Result = any, Params = any>(
+    request: JsonRpcRequest<Params>,
+  ): Promise<Result> {
+    return new Promise(async (resolve, reject) => {
+      if (!this.connection.connected) {
+        await this.open();
+      }
+      this.connection.on(`${request.id}`, response => {
+        if (response.error) {
+          reject(response.error.message);
+        } else {
+          const { result } = response as JsonRpcResult<Result>;
+          resolve(result);
+        }
+      });
+
+      await this.connection.send(request);
+    });
   }
 
-  public async disconnect(params?: any): Promise<void> {
-    // empty
+  // ---------- Private ----------------------------------------------- //
+
+  private setConnection(url: string): IJsonRpcConnection {
+    return isHttpUrl(url) ? new HttpConnection(url) : new WsConnection(url);
   }
 
-  public async request(payload: JsonRpcRequest): Promise<any> {
-    const res = await this.api.post("/", payload);
-    const response = res.data as JsonRpcResponse;
-    if (isJsonRpcError(response)) {
-      throw new Error(response.error.message);
-    }
-    return response.result;
+  private async open(url = this.url) {
+    if (this.url === url && this.connection.connected) return;
+    if (this.connection.connected) this.close();
+    this.url = url;
+    this.connection = this.setConnection(url);
+    await this.connection.open(url);
+    this.connection.on("close", () => this.events.emit("disconnect"));
+    this.events.emit("connect");
+  }
+
+  private async close() {
+    await this.connection.close();
+    this.events.emit("disconnect");
   }
 }
+
+export default JsonRpcProvider;

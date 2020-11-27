@@ -35,7 +35,9 @@
   },
   "dependencies": {
     "@json-rpc-tools/utils": "^1.0.0",
-    "axios": "^0.21.0"
+    "axios": "^0.21.0",
+    "safe-json-utils": "^1.1.1",
+    "ws": "^7.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
