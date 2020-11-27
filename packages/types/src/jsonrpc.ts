@@ -2,6 +2,11 @@ import { Schema } from "./schema";
 
 export type JsonSchema = Schema;
 
+export interface JsonRpcProviderMessage<T = any> {
+  type: string;
+  data: T;
+}
+
 export interface JsonRpcMethodConfig {
   name: string;
   description: string;

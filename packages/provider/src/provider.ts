@@ -5,6 +5,7 @@ import {
   JsonRpcRequest,
   JsonRpcResult,
   JsonRpcPayload,
+  JsonRpcProviderMessage,
   isJsonRpcResponse,
 } from "@json-rpc-tools/utils";
 
@@ -82,7 +83,7 @@ export class JsonRpcProvider implements IJsonRpcProvider {
         this.events.emit("message", {
           type: payload.method,
           data: payload.params,
-        });
+        } as JsonRpcProviderMessage);
       }
     });
     this.connection.on("close", () => this.events.emit("disconnect"));
