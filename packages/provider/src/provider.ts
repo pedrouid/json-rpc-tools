@@ -69,23 +69,25 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     return isHttpUrl(url) ? new HttpConnection(url) : new WsConnection(url);
   }
 
+  private onPayload(payload: JsonRpcPayload): void {
+    this.events.emit("payload", payload);
+    if (isJsonRpcResponse(payload)) {
+      this.events.emit(`${payload.id}`, payload);
+    } else {
+      this.events.emit("message", {
+        type: payload.method,
+        data: payload.params,
+      } as JsonRpcProviderMessage);
+    }
+  }
+
   private async open(url = this.url) {
     if (this.url === url && this.connection.connected) return;
     if (this.connection.connected) this.close();
     this.url = url;
     this.connection = this.setConnection(url);
     await this.connection.open(url);
-    this.connection.on("payload", (payload: JsonRpcPayload) => {
-      this.events.emit("payload", payload);
-      if (isJsonRpcResponse(payload)) {
-        this.events.emit(`${payload.id}`, payload);
-      } else {
-        this.events.emit("message", {
-          type: payload.method,
-          data: payload.params,
-        } as JsonRpcProviderMessage);
-      }
-    });
+    this.connection.on("payload", (payload: JsonRpcPayload) => this.onPayload(payload));
     this.connection.on("close", () => this.events.emit("disconnect"));
     this.events.emit("connect");
   }
