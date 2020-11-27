@@ -90,10 +90,6 @@ export class WsConnection implements IJsonRpcConnection {
   private onPayload(e: { data: any }) {
     if (typeof e.data === "undefined") return;
     const payload: JsonRpcPayload = typeof e.data === "string" ? safeJsonParse(e.data) : e.data;
-    if (isJsonRpcResponse(payload)) {
-      this.events.emit(`${payload.id}`, payload);
-    } else {
-      this.events.emit("request", payload);
-    }
+    this.events.emit("payload", payload);
   }
 }

@@ -4,6 +4,8 @@ import {
   IJsonRpcConnection,
   JsonRpcRequest,
   JsonRpcResult,
+  JsonRpcPayload,
+  isJsonRpcResponse,
 } from "@json-rpc-tools/utils";
 
 import { HttpConnection } from "./http";
@@ -47,7 +49,7 @@ export class JsonRpcProvider implements IJsonRpcProvider {
       if (!this.connection.connected) {
         await this.open();
       }
-      this.connection.on(`${request.id}`, response => {
+      this.events.on(`${request.id}`, response => {
         if (response.error) {
           reject(response.error.message);
         } else {
@@ -72,6 +74,17 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     this.url = url;
     this.connection = this.setConnection(url);
     await this.connection.open(url);
+    this.connection.on("payload", (payload: JsonRpcPayload) => {
+      this.events.emit("payload", payload);
+      if (isJsonRpcResponse(payload)) {
+        this.events.emit(`${payload.id}`, payload);
+      } else {
+        this.events.emit("message", {
+          type: payload.method,
+          data: payload.params,
+        });
+      }
+    });
     this.connection.on("close", () => this.events.emit("disconnect"));
     this.events.emit("connect");
   }
