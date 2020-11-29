@@ -24,46 +24,44 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
   },
 };
 
-const ETHEREUM_JSONRPC_CONFIG: JsonRpcConfig = {
-  methods: {
-    eth_blockNumber: {
-      name: "eth_blockNumber",
-      description: "Fetches highest block number",
-      params: {
-        type: "array",
-        items: {},
-      },
-      result: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
+const ETHEREUM_JSONRPC_METHODS = {
+  eth_blockNumber: {
+    name: "eth_blockNumber",
+    description: "Fetches highest block number",
+    params: {
+      type: "array",
+      items: {},
     },
-    eth_accounts: {
-      name: "eth_accounts",
-      description: "Exposes user account addresses",
-      params: {
-        type: "array",
-        items: {},
-      },
-      result: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
-    },
-    eth_sendTransaction: {
-      name: "eth_sendTransaction",
-      description: "Creates, signs, and sends a new transaction to the network",
-      params: {
-        type: "array",
-        items: ETHEREUM_TX_JSONRPC_SCHEMA,
-      },
-      result: {
+    result: {
+      type: "array",
+      items: {
         type: "string",
       },
+    },
+  },
+  eth_accounts: {
+    name: "eth_accounts",
+    description: "Exposes user account addresses",
+    params: {
+      type: "array",
+      items: {},
+    },
+    result: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  eth_sendTransaction: {
+    name: "eth_sendTransaction",
+    description: "Creates, signs, and sends a new transaction to the network",
+    params: {
+      type: "array",
+      items: ETHEREUM_TX_JSONRPC_SCHEMA,
+    },
+    result: {
+      type: "string",
     },
   },
 };
@@ -77,7 +75,7 @@ const ETHEREUM_PROVIDER_CONFIG: JsonRpcRouterConfig = {
     http: ["eth_blockNumber"],
     signer: ["eth_accounts", "eth_sendTransaction"],
   },
-  ...ETHEREUM_JSONRPC_CONFIG,
+  methods: ETHEREUM_JSONRPC_METHODS,
 };
 
 describe("BlockchainAuthenticator", () => {
