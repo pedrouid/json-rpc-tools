@@ -13,10 +13,12 @@ export interface JsonRpcMethodSchema {
   params: JsonSchema;
   result: JsonSchema;
 }
+
+export interface JsonRpcMethodsMap {
+  [method: string]: JsonRpcMethodSchema;
+}
 export interface JsonRpcConfig {
-  methods: {
-    [method: string]: JsonRpcMethodSchema;
-  };
+  methods: JsonRpcMethodsMap;
 }
 
 export interface JsonRpcRequest<T = any> {

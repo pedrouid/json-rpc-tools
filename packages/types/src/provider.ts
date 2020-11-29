@@ -11,12 +11,7 @@ export abstract class IJsonRpcConnection extends IEvents {
   public abstract send(payload: JsonRpcPayload): Promise<void>;
 }
 
-export interface IMiniminumViableJsonRpcProvider {
-  request<Result = any, Params = any>(request: JsonRpcRequest<Params>): Promise<Result>;
-}
-
-export abstract class IBaseJsonRpcProvider extends IEvents
-  implements IMiniminumViableJsonRpcProvider {
+export abstract class IBaseJsonRpcProvider extends IEvents {
   constructor() {
     super();
   }

@@ -2,14 +2,16 @@ import { JsonRpcRequest, IPendingRequests } from "@json-rpc-tools/utils";
 import { IStore } from "@pedrouid/iso-store";
 
 export class PendingRequests implements IPendingRequests {
+  public chainId: string | undefined;
+
   public pending: JsonRpcRequest[] = [];
-  constructor(public chainId: string, public store?: IStore) {
+  constructor(public store?: IStore) {
     this.store = store;
-    this.chainId = chainId;
   }
 
-  public async init(): Promise<void> {
-    await this.restore();
+  public async init(chainId: string | undefined = this.chainId): Promise<void> {
+    this.chainId = chainId;
+    await this.restore(chainId);
   }
 
   public async set(request: JsonRpcRequest): Promise<void> {
@@ -28,8 +30,11 @@ export class PendingRequests implements IPendingRequests {
 
   // -- Private ----------------------------------------------- //
 
-  private getStoreKey() {
-    return `${this.chainId}:jsonrpc:pending`;
+  private getStoreKey(chainId: string | undefined = this.chainId) {
+    if (typeof chainId === "undefined") {
+      throw new Error("Missing chainId - please intitialize BlockchainAuthenticator");
+    }
+    return `${chainId}:jsonrpc:pending`;
   }
 
   private async persist() {
@@ -37,8 +42,8 @@ export class PendingRequests implements IPendingRequests {
     await this.store.set<JsonRpcRequest[]>(this.getStoreKey(), this.pending);
   }
 
-  private async restore() {
+  private async restore(chainId: string | undefined = this.chainId) {
     if (typeof this.store === "undefined") return;
-    this.pending = (await this.store.get<JsonRpcRequest[]>(this.getStoreKey())) || [];
+    this.pending = (await this.store.get<JsonRpcRequest[]>(this.getStoreKey(chainId))) || [];
   }
 }

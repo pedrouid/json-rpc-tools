@@ -1,16 +1,12 @@
 import { EventEmitter } from "events";
+import { IStore } from "@pedrouid/iso-store";
 import {
-  formatJsonRpcError,
   JsonRpcRequest,
   JsonRpcResponse,
-  INVALID_REQUEST,
-  METHOD_NOT_FOUND,
   formatJsonRpcResult,
-  JsonRpcError,
   IBlockchainProvider,
   IBlockchainAuthenticator,
 } from "@json-rpc-tools/utils";
-import { IStore } from "@pedrouid/iso-store";
 
 import { PendingRequests } from "./pending";
 
@@ -21,7 +17,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
 
   constructor(public provider: IBlockchainProvider, store?: IStore) {
     this.provider = provider;
-    this.pending = new PendingRequests(this.provider.chainId, store);
+    this.pending = new PendingRequests(store);
   }
 
   public on(event: string, listener: any): void {
@@ -37,7 +33,11 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   }
 
   public async init(): Promise<void> {
-    await this.pending.init();
+    await this.pending.init(await this.provider.getChainId());
+  }
+
+  public async getChainId(): Promise<string> {
+    return this.provider.getChainId();
   }
 
   public async getAccounts(): Promise<string[]> {
@@ -45,7 +45,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   }
 
   public async approve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
-    const error = this.findError(request);
+    const error = this.provider.assertRequest(request);
     if (typeof error !== "undefined") {
       return error;
     }
@@ -56,7 +56,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   }
 
   public async resolve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
-    const error = this.findError(request);
+    const error = this.provider.assertRequest(request);
     if (typeof error !== "undefined") {
       return error;
     }
@@ -76,16 +76,6 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   // -- Private ----------------------------------------------- //
 
   private requiresApproval(method: string): boolean {
-    return this.provider.router.map[method] === "signer";
-  }
-
-  private findError(request: JsonRpcRequest): JsonRpcError | undefined {
-    if (!this.provider.router.isSupported(request.method)) {
-      return formatJsonRpcError(request.id, METHOD_NOT_FOUND);
-    }
-    if (!this.provider.router.validate(request)) {
-      return formatJsonRpcError(request.id, INVALID_REQUEST);
-    }
-    return;
+    return this.provider.map[method] === "signer";
   }
 }

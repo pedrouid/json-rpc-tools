@@ -1,61 +1,33 @@
-import { JsonRpcConfig, JsonRpcMethodSchema, JsonRpcPayload, JsonRpcRequest } from "./jsonrpc";
-import {
-  IBaseJsonRpcProvider,
-  IJsonRpcProvider,
-  IMiniminumViableJsonRpcProvider,
-} from "./provider";
+import { JsonRpcError, JsonRpcMethodsMap, JsonRpcRequest } from "./jsonrpc";
+import { IBaseJsonRpcProvider, IJsonRpcProvider } from "./provider";
+import { IJsonRpcValidator } from "./validator";
 
-export interface JsonRpcRouterConfig extends JsonRpcConfig {
-  providers: {
-    [name: string]: IJsonRpcProvider;
-  };
-  routes: {
-    [provider: string]: string[];
-  };
+export interface JsonRpcProvidersMap {
+  [name: string]: IJsonRpcProvider;
 }
 
-export interface JsonRpcValidationResult {
-  valid: boolean;
-  error?: string;
+export interface JsonRpcRoutesConfig {
+  [provider: string]: string[];
+}
+export interface MultiServiceProviderConfig {
+  providers: JsonRpcProvidersMap;
+  routes: JsonRpcRoutesConfig;
+  methods?: JsonRpcMethodsMap;
 }
 
-export interface JsonRpcValidationValid extends JsonRpcValidationResult {
-  valid: true;
-}
-
-export interface JsonRpcValidationInvalid extends JsonRpcValidationResult {
-  valid: false;
-  error: string;
-}
-
-export type JsonRpcValidation = JsonRpcValidationValid | JsonRpcValidationInvalid;
-
-export abstract class IJsonRpcValidator {
-  constructor(public config: JsonRpcConfig) {}
-  public abstract isSupported(method: string): boolean;
-  public abstract getSchema(method: string): JsonRpcMethodSchema;
-  public abstract validate(payload: JsonRpcPayload, method?: string): JsonRpcValidation;
-}
-
-export abstract class IJsonRpcRouter extends IJsonRpcValidator
-  implements IMiniminumViableJsonRpcProvider {
-  public abstract map: Record<string, string>;
-
-  constructor(public config: JsonRpcRouterConfig) {
-    super(config);
-  }
-
-  public abstract getProviderByMethod(method: string): IJsonRpcProvider;
-
-  public abstract request<Result = any, Params = any>(
-    request: JsonRpcRequest<Params>,
-  ): Promise<Result>;
-}
+export type MultiServiceProviderMap = Record<string, string>;
 
 export abstract class IMultiServiceProvider extends IBaseJsonRpcProvider {
-  public abstract router: IJsonRpcRouter;
+  public abstract map: MultiServiceProviderMap;
+  public abstract providers: JsonRpcProvidersMap;
+  public abstract routes: JsonRpcRoutesConfig;
+  public abstract validator: IJsonRpcValidator | undefined;
 
-  constructor(public config: JsonRpcRouterConfig) {
+  constructor(public config: MultiServiceProviderConfig) {
     super();
   }
+
+  public abstract isSupported(method: string): boolean;
+  public abstract getProvider(method: string): IJsonRpcProvider;
+  public abstract assertRequest(request: JsonRpcRequest): JsonRpcError | undefined;
 }

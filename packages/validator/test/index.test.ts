@@ -1,6 +1,12 @@
 import "mocha";
 import * as chai from "chai";
-import { JsonRpcConfig, JsonRpcRequest, JsonRpcResponse, JsonSchema } from "@json-rpc-tools/utils";
+import {
+  JsonRpcConfig,
+  JsonRpcMethodsMap,
+  JsonRpcRequest,
+  JsonRpcResponse,
+  JsonSchema,
+} from "@json-rpc-tools/utils";
 
 import JsonRpcValidator from "../src";
 
@@ -17,32 +23,30 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
   },
 };
 
-const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
-  methods: {
-    eth_accounts: {
-      name: "eth_accounts",
-      description: "Exposes user account addresses",
-      params: {
-        type: "array",
-        items: {},
-      },
-      result: {
-        type: "array",
-        items: {
-          type: "string",
-        },
-      },
+const ETHEREUM_JSONRPC_METHODS_MAP: JsonRpcMethodsMap = {
+  eth_accounts: {
+    name: "eth_accounts",
+    description: "Exposes user account addresses",
+    params: {
+      type: "array",
+      items: {},
     },
-    eth_sendTransaction: {
-      name: "eth_sendTransaction",
-      description: "Creates, signs, and sends a new transaction to the network",
-      params: {
-        type: "array",
-        items: ETHEREUM_TX_JSONRPC_SCHEMA,
-      },
-      result: {
+    result: {
+      type: "array",
+      items: {
         type: "string",
       },
+    },
+  },
+  eth_sendTransaction: {
+    name: "eth_sendTransaction",
+    description: "Creates, signs, and sends a new transaction to the network",
+    params: {
+      type: "array",
+      items: ETHEREUM_TX_JSONRPC_SCHEMA,
+    },
+    result: {
+      type: "string",
     },
   },
 };
@@ -89,7 +93,7 @@ const TEST_JSON_RPC_RESPONSE: { [method: string]: JsonRpcResponse } = {
 describe("JsonRpcValidator", () => {
   let validator: JsonRpcValidator;
   beforeAll(() => {
-    validator = new JsonRpcValidator(ETHEREUM_SIGNER_JSONRPC_CONFIG);
+    validator = new JsonRpcValidator(ETHEREUM_JSONRPC_METHODS_MAP);
   });
   it("init", async () => {
     chai.expect(!!validator).to.be.true;
