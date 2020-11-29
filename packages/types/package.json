@@ -21,7 +21,7 @@
     "utils",
     "signer",
     "provider",
-    "auth"
+    "blockchain"
   ],
   "scripts": {
     "clean": "rm -rf dist",

@@ -1,5 +1,4 @@
 import { EventEmitter } from "events";
-import * as jsonschema from "jsonschema";
 import {
   formatJsonRpcError,
   JsonRpcRequest,
@@ -8,26 +7,21 @@ import {
   METHOD_NOT_FOUND,
   formatJsonRpcResult,
   JsonRpcError,
-  formatJsonRpcRequest,
+  IBlockchainProvider,
+  IBlockchainAuthenticator,
 } from "@json-rpc-tools/utils";
 import { IStore } from "@pedrouid/iso-store";
 
 import { PendingRequests } from "./pending";
-import {
-  IJsonRpcAuthenticator,
-  IJsonRpcProvider,
-  JsonRpcAuthConfig,
-  JsonRpcMethodConfig,
-} from "./types";
 
-export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
+export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   public events = new EventEmitter();
 
   public pending: PendingRequests;
 
-  constructor(public config: JsonRpcAuthConfig, public provider: IJsonRpcProvider, store?: IStore) {
-    this.config = config;
-    this.pending = new PendingRequests(config.chainId, store);
+  constructor(public provider: IBlockchainProvider, store?: IStore) {
+    this.provider = provider;
+    this.pending = new PendingRequests(this.provider.chainId, store);
   }
 
   public on(event: string, listener: any): void {
@@ -47,23 +41,7 @@ export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
   }
 
   public async getAccounts(): Promise<string[]> {
-    const request = formatJsonRpcRequest(this.config.accounts.method, []);
-    return this.provider.request(request);
-  }
-
-  public supportsMethod(request: JsonRpcRequest): boolean {
-    return Object.keys(this.config.methods).includes(request.method);
-  }
-
-  public requiresApproval(request: JsonRpcRequest): boolean {
-    const jsonrpc = this.getJsonRpcConfig(request.method);
-    return !!jsonrpc.userApproval;
-  }
-
-  public validateRequest(request: JsonRpcRequest): boolean {
-    const jsonrpc = this.getJsonRpcConfig(request.method);
-    const result = jsonschema.validate(request.params, jsonrpc.params);
-    return result.valid;
+    return this.provider.getAccounts();
   }
 
   public async approve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
@@ -82,7 +60,7 @@ export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
     if (typeof error !== "undefined") {
       return error;
     }
-    if (this.requiresApproval(request)) {
+    if (this.requiresApproval(request.method)) {
       await this.pending.set(request);
       this.events.emit("pending_approval", request);
       return new Promise((resolve, reject) => {
@@ -97,19 +75,15 @@ export class JsonRpcAuthenticator implements IJsonRpcAuthenticator {
   }
   // -- Private ----------------------------------------------- //
 
-  private getJsonRpcConfig(method: string): JsonRpcMethodConfig {
-    const jsonrpc = this.config.methods[method];
-    if (typeof jsonrpc === "undefined") {
-      throw new Error(`JSON-RPC method not supported: ${method}`);
-    }
-    return jsonrpc;
+  private requiresApproval(method: string): boolean {
+    return this.provider.router.map[method] === "signer";
   }
 
   private findError(request: JsonRpcRequest): JsonRpcError | undefined {
-    if (!this.supportsMethod(request)) {
+    if (!this.provider.router.isSupported(request.method)) {
       return formatJsonRpcError(request.id, METHOD_NOT_FOUND);
     }
-    if (!this.validateRequest(request)) {
+    if (!this.provider.router.validate(request)) {
       return formatJsonRpcError(request.id, INVALID_REQUEST);
     }
     return;

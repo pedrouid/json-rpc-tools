@@ -7,23 +7,15 @@ export interface JsonRpcProviderMessage<T = any> {
   data: T;
 }
 
-export interface JsonRpcMethodConfig {
+export interface JsonRpcMethodSchema {
   name: string;
   description: string;
   params: JsonSchema;
   result: JsonSchema;
-  userApproval?: boolean;
 }
 export interface JsonRpcConfig {
   methods: {
-    [method: string]: JsonRpcMethodConfig;
-  };
-}
-
-export interface JsonRpcAuthConfig extends JsonRpcConfig {
-  chainId: string;
-  accounts: {
-    method: string;
+    [method: string]: JsonRpcMethodSchema;
   };
 }
 

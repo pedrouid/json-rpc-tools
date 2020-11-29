@@ -5,11 +5,10 @@ import {
   RESERVED_ERROR_CODES,
   STANDARD_ERROR_MAP,
 } from "./constants";
+import { JsonRpcError, JsonRpcValidation } from "@json-rpc-tools/types";
 
 export function isServerErrorCode(code: number): boolean {
-  return (
-    code <= SERVER_ERROR_CODE_RANGE[0] && code >= SERVER_ERROR_CODE_RANGE[1]
-  );
+  return code <= SERVER_ERROR_CODE_RANGE[0] && code >= SERVER_ERROR_CODE_RANGE[1];
 }
 
 export function isReservedErrorCode(code: number): boolean {
@@ -33,4 +32,32 @@ export function getErrorByCode(code: number): ErrorResponse {
     return STANDARD_ERROR_MAP[INTERNAL_ERROR];
   }
   return match;
+}
+
+export function validateJsonRpcError(response: JsonRpcError): JsonRpcValidation {
+  if (typeof response.error.code === "undefined") {
+    return { valid: false, error: "Missing code for JSON-RPC error" };
+  }
+  if (typeof response.error.message === "undefined") {
+    return { valid: false, error: "Missing message for JSON-RPC error" };
+  }
+  if (!isValidErrorCode(response.error.code)) {
+    return {
+      valid: false,
+      error: `Invalid error code for JSON-RPC error code: ${response.error.code}`,
+    };
+  }
+  if (isReservedErrorCode(response.error.code)) {
+    const error = getErrorByCode(response.error.code);
+    if (
+      error.message !== STANDARD_ERROR_MAP[INTERNAL_ERROR].message &&
+      response.error.message === error.message
+    ) {
+      return {
+        valid: false,
+        error: `Invalid error message for JSON-RPC error code: ${response.error.code}`,
+      };
+    }
+  }
+  return { valid: true };
 }

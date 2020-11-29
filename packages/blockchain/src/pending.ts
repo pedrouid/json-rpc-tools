@@ -1,7 +1,5 @@
-import { JsonRpcRequest } from "@json-rpc-tools/utils";
+import { JsonRpcRequest, IPendingRequests } from "@json-rpc-tools/utils";
 import { IStore } from "@pedrouid/iso-store";
-
-import { IPendingRequests } from "./types";
 
 export class PendingRequests implements IPendingRequests {
   public pending: JsonRpcRequest[] = [];

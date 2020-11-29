@@ -1,6 +1,6 @@
-import { JsonRpcAuthConfig, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { IMultiServiceProvider, JsonRpcRouterConfig } from "./multi";
 import { IEvents, IStore } from "./misc";
-import { IJsonRpcProvider } from "./provider";
 
 export abstract class IPendingRequests {
   public abstract pending: JsonRpcRequest[];
@@ -11,10 +11,10 @@ export abstract class IPendingRequests {
   public abstract delete(id: number): Promise<void>;
 }
 
-export abstract class IJsonRpcAuthenticator extends IEvents {
+export abstract class IBlockchainAuthenticator extends IEvents {
   public abstract pending: IPendingRequests;
 
-  constructor(public config: JsonRpcAuthConfig, public provider: IJsonRpcProvider, store?: IStore) {
+  constructor(public provider: IBlockchainProvider, store?: IStore) {
     super();
   }
 
@@ -22,13 +22,14 @@ export abstract class IJsonRpcAuthenticator extends IEvents {
 
   public abstract getAccounts(): Promise<string[]>;
 
-  public abstract supportsMethod(request: JsonRpcRequest): boolean;
-
-  public abstract requiresApproval(request: JsonRpcRequest): boolean;
-
-  public abstract validateRequest(request: JsonRpcRequest): boolean;
-
   public abstract approve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 
   public abstract resolve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
+}
+
+export abstract class IBlockchainProvider extends IMultiServiceProvider {
+  constructor(public config: JsonRpcRouterConfig, public chainId: string) {
+    super(config);
+  }
+  public abstract getAccounts(): Promise<string[]>;
 }

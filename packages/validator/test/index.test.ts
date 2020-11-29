@@ -1,10 +1,8 @@
 import "mocha";
 import * as chai from "chai";
-import { JsonRpcProvider } from "@json-rpc-tools/provider";
-import { JsonRpcRequest } from "@json-rpc-tools/utils";
-import { IJsonRpcAuthenticator, JsonRpcAuthenticator, JsonRpcConfig, JsonSchema } from "../src";
+import { JsonRpcConfig, JsonRpcRequest, JsonRpcResponse, JsonSchema } from "@json-rpc-tools/utils";
 
-const ETHEREUM_CHAIN_ID = "eip155:1";
+import JsonRpcValidator from "../src";
 
 const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
   type: "object",
@@ -20,10 +18,6 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
 };
 
 const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
-  context: ETHEREUM_CHAIN_ID,
-  accounts: {
-    method: "eth_accounts",
-  },
   methods: {
     eth_accounts: {
       name: "eth_accounts",
@@ -49,7 +43,6 @@ const ETHEREUM_SIGNER_JSONRPC_CONFIG: JsonRpcConfig = {
       result: {
         type: "string",
       },
-      userApproval: true,
     },
   },
 };
@@ -85,33 +78,42 @@ const TEST_JSON_RPC_REQUEST: { [method: string]: JsonRpcRequest } = {
   },
 };
 
-describe("JsonRpcAuthenticator", () => {
-  let ethereumAuthenticator: IJsonRpcAuthenticator;
+const TEST_JSON_RPC_RESPONSE: { [method: string]: JsonRpcResponse } = {
+  eth_sendTransaction: {
+    id: 1,
+    jsonrpc: "2.0",
+    result: "0x2258e30e987613c859172f271c0b8a2d4dcc9d9258455170fcebca15d281a7fc",
+  },
+};
+
+describe("JsonRpcValidator", () => {
+  let validator: JsonRpcValidator;
   beforeAll(() => {
-    const provider = new JsonRpcProvider(`https://rpc.slock.it/mainnet`);
-    ethereumAuthenticator = new JsonRpcAuthenticator(ETHEREUM_SIGNER_JSONRPC_CONFIG, provider);
+    validator = new JsonRpcValidator(ETHEREUM_SIGNER_JSONRPC_CONFIG);
   });
   it("init", async () => {
-    chai.expect(!!ethereumAuthenticator).to.be.true;
+    chai.expect(!!validator).to.be.true;
   });
-  it("supportsMethod", async () => {
-    chai.expect(ethereumAuthenticator.supportsMethod(TEST_JSON_RPC_REQUEST.eth_sendTransaction)).to
-      .be.true;
-    chai.expect(ethereumAuthenticator.supportsMethod(TEST_JSON_RPC_REQUEST.invalid_method)).to.be
-      .false;
+  it("isSupported", async () => {
+    chai.expect(validator.isSupported(TEST_JSON_RPC_REQUEST.eth_sendTransaction.method)).to.be.true;
+    chai.expect(validator.isSupported(TEST_JSON_RPC_REQUEST.invalid_method.method)).to.be.false;
   });
-  it("requiresApproval", async () => {
-    chai.expect(ethereumAuthenticator.requiresApproval(TEST_JSON_RPC_REQUEST.eth_sendTransaction))
-      .to.be.true;
+
+  it("validate", async () => {
     chai
-      .expect(() => ethereumAuthenticator.requiresApproval(TEST_JSON_RPC_REQUEST.invalid_method))
-      .to.throw(`JSON-RPC method not supported: invalid_method`);
-  });
-  it("validateRequest", async () => {
-    chai.expect(ethereumAuthenticator.validateRequest(TEST_JSON_RPC_REQUEST.eth_sendTransaction)).to
-      .be.true;
+      .expect(validator.validate(TEST_JSON_RPC_REQUEST.eth_sendTransaction))
+      .to.be.eql({ valid: true });
     chai
-      .expect(() => ethereumAuthenticator.validateRequest(TEST_JSON_RPC_REQUEST.invalid_method))
+      .expect(validator.validate(TEST_JSON_RPC_REQUEST.eth_sendTransaction))
+      .to.be.eql({ valid: true });
+    chai
+      .expect(() => validator.validate(TEST_JSON_RPC_REQUEST.invalid_method))
       .to.throw(`JSON-RPC method not supported: invalid_method`);
+    chai
+      .expect(validator.validate(TEST_JSON_RPC_RESPONSE.eth_sendTransaction, "eth_sendTransaction"))
+      .to.be.eql({ valid: true });
+    chai
+      .expect(() => validator.validate(TEST_JSON_RPC_RESPONSE.eth_sendTransaction))
+      .to.throw("Method argument required for validating JsonRpcResult");
   });
 });

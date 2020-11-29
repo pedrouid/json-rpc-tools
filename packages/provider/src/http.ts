@@ -1,11 +1,6 @@
 import { EventEmitter } from "events";
 import axios, { AxiosInstance } from "axios";
-import {
-  IJsonRpcConnection,
-  JsonRpcRequest,
-  JsonRpcPayload,
-  isJsonRpcResponse,
-} from "@json-rpc-tools/utils";
+import { IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
 import { safeJsonParse } from "safe-json-utils";
 
 import { isHttpUrl } from "./url";
@@ -46,7 +41,7 @@ export class HttpConnection implements IJsonRpcConnection {
     this.onClose();
   }
 
-  public async send(payload: JsonRpcRequest): Promise<void> {
+  public async send(payload: JsonRpcPayload): Promise<void> {
     if (typeof this.api === "undefined") {
       this.api = await this.register();
     }

@@ -18,13 +18,12 @@ export class JsonRpcProvider implements IJsonRpcProvider {
 
   public connection: IJsonRpcConnection;
 
-  constructor(public url: string) {
-    this.url = url;
-    this.connection = this.setConnection(url);
+  constructor(connection: string | IJsonRpcConnection) {
+    this.connection = this.setConnection(connection);
   }
 
-  public async connect(url = this.url): Promise<void> {
-    await this.open(url);
+  public async connect(connection: string | IJsonRpcConnection = this.connection): Promise<void> {
+    await this.open(connection);
   }
 
   public async disconnect(): Promise<void> {
@@ -65,8 +64,12 @@ export class JsonRpcProvider implements IJsonRpcProvider {
 
   // ---------- Private ----------------------------------------------- //
 
-  private setConnection(url: string): IJsonRpcConnection {
-    return isHttpUrl(url) ? new HttpConnection(url) : new WsConnection(url);
+  private setConnection(connection: string | IJsonRpcConnection = this.connection) {
+    return typeof connection === "string"
+      ? isHttpUrl(connection)
+        ? new HttpConnection(connection)
+        : new WsConnection(connection)
+      : connection;
   }
 
   private onPayload(payload: JsonRpcPayload): void {
@@ -81,12 +84,11 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     }
   }
 
-  private async open(url = this.url) {
-    if (this.url === url && this.connection.connected) return;
+  private async open(connection: string | IJsonRpcConnection = this.connection) {
+    if (this.connection === connection && this.connection.connected) return;
     if (this.connection.connected) this.close();
-    this.url = url;
-    this.connection = this.setConnection(url);
-    await this.connection.open(url);
+    this.connection = this.setConnection();
+    await this.connection.open();
     this.connection.on("payload", (payload: JsonRpcPayload) => this.onPayload(payload));
     this.connection.on("close", () => this.events.emit("disconnect"));
     this.events.emit("connect");

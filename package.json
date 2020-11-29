@@ -12,7 +12,7 @@
     "utils",
     "signer",
     "provider",
-    "auth"
+    "blockchain"
   ],
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools",
