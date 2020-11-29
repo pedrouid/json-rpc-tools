@@ -24,6 +24,6 @@ export class BlockchainProvider extends MultiServiceProvider implements IBlockch
   // ---------- Private ----------------------------------------------- //
 
   public async getState<T = any>(method: string, params: any = []): Promise<T> {
-    return this.request(formatJsonRpcRequest(this.config.stateMethods[method], params));
+    return this.request(formatJsonRpcRequest(this.config.state[method], params));
   }
 }

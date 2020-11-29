@@ -31,7 +31,7 @@ export abstract class IBlockchainAuthenticator extends IEvents {
 }
 
 export interface BlockchainProviderConfig extends MultiServiceProviderConfig {
-  stateMethods: {
+  state: {
     chainId: string;
     accounts: string;
   };
