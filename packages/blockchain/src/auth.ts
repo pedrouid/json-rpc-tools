@@ -6,6 +6,8 @@ import {
   formatJsonRpcResult,
   IBlockchainProvider,
   IBlockchainAuthenticator,
+  formatJsonRpcError,
+  JsonRpcError,
 } from "@json-rpc-tools/utils";
 
 import { PendingRequests } from "./pending";
@@ -55,7 +57,13 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     return response;
   }
 
-  public async resolve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
+  public async reject(request: JsonRpcRequest): Promise<JsonRpcError> {
+    const response = formatJsonRpcError(request.id, "User rejected request");
+    this.events.emit(`${request.id}`, response);
+    return response;
+  }
+
+  public async request(request: JsonRpcRequest): Promise<JsonRpcResponse> {
     const error = this.provider.assertRequest(request);
     if (typeof error !== "undefined") {
       return error;

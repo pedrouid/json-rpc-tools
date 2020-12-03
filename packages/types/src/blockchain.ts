@@ -1,4 +1,4 @@
-import { JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { JsonRpcError, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
 import { IMultiServiceProvider, MultiServiceProviderConfig } from "./multi";
 import { IEvents, IStore } from "./misc";
 
@@ -27,7 +27,9 @@ export abstract class IBlockchainAuthenticator extends IEvents {
 
   public abstract approve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 
-  public abstract resolve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
+  public abstract reject(request: JsonRpcRequest): Promise<JsonRpcError>;
+
+  public abstract request(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 }
 
 export interface BlockchainProviderConfig extends MultiServiceProviderConfig {

@@ -94,7 +94,7 @@ const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
     chainId: "eth_chainId",
     accounts: "eth_accounts",
   },
-  methods: ETHEREUM_JSONRPC_METHODS,
+  // schemas: ETHEREUM_JSONRPC_METHODS,
 };
 
 describe("BlockchainAuthenticator", () => {
@@ -107,7 +107,8 @@ describe("BlockchainAuthenticator", () => {
     chai.expect(!!authenticator).to.be.true;
   });
   it("eth_chainId", async () => {
-    const response = await authenticator.resolve(formatJsonRpcRequest("eth_chainId", []));
+    const request = formatJsonRpcRequest("eth_chainId", []);
+    const response = await authenticator.request(request);
     if (isJsonRpcError(response)) return;
     chai.expect(response.result).to.eql(`0x${ETHEREUM_CHAIN_ID}`);
   });

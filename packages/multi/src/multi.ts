@@ -30,7 +30,7 @@ export class MultiServiceProvider implements IMultiServiceProvider {
     this.providers = config.providers;
     this.routes = config.routes;
     this.validator =
-      typeof config.methods !== "undefined" ? new JsonRpcValidator(config.methods) : undefined;
+      typeof config.schemas !== "undefined" ? new JsonRpcValidator(config.schemas) : undefined;
   }
 
   public async connect(): Promise<void> {

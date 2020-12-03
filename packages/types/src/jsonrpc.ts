@@ -21,6 +21,10 @@ export interface JsonRpcConfig {
   methods: JsonRpcMethodsMap;
 }
 
+export interface JsonRpcSchemas {
+  schemas: JsonRpcMethodsMap;
+}
+
 export interface JsonRpcRequest<T = any> {
   id: number;
   jsonrpc: string;

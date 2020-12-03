@@ -12,7 +12,7 @@ export interface JsonRpcRoutesConfig {
 export interface MultiServiceProviderConfig {
   providers: JsonRpcProvidersMap;
   routes: JsonRpcRoutesConfig;
-  methods?: JsonRpcMethodsMap;
+  schemas?: JsonRpcMethodsMap;
 }
 
 export type MultiServiceProviderMap = Record<string, string>;
