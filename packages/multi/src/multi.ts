@@ -13,6 +13,9 @@ import {
   METHOD_NOT_FOUND,
   MultiServiceProviderConfig,
   MultiServiceProviderMap,
+  isValidRoute,
+  isValidTrailingWildcardRoute,
+  isValidLeadingWildcardRoute,
 } from "@json-rpc-tools/utils";
 import { JsonRpcValidator } from "@json-rpc-tools/validator";
 
@@ -56,23 +59,28 @@ export class MultiServiceProvider implements IMultiServiceProvider {
   }
 
   public once(event: string, listener: any): void {
-    Object.keys(this.providers).forEach((provider: string) => {
-      this.providers[provider].once(event, listener);
+    Object.keys(this.providers).forEach((providerId: string) => {
+      this.providers[providerId].once(event, listener);
     });
   }
 
   public off(event: string, listener: any): void {
-    Object.keys(this.providers).forEach((provider: string) => {
-      this.providers[provider].off(event, listener);
+    Object.keys(this.providers).forEach((providerId: string) => {
+      this.providers[providerId].off(event, listener);
     });
   }
 
   public isSupported(method: string): boolean {
-    return Object.keys(this.map).includes(method);
+    const providerId = this.getRouteProviderId(method);
+    return typeof providerId !== "undefined";
   }
 
   public getProvider(method: string): IJsonRpcProvider {
-    return this.providers[this.map[method]];
+    const providerId = this.getRouteProviderId(method);
+    if (typeof providerId === "undefined") {
+      throw new Error(`No provider route defined for method: ${method}`);
+    }
+    return this.providers[providerId];
   }
 
   public assertRequest(request: JsonRpcRequest): JsonRpcError | undefined {
@@ -98,10 +106,48 @@ export class MultiServiceProvider implements IMultiServiceProvider {
     if (typeof response !== "undefined") {
       throw new Error(response.error.message);
     }
-    return this.getProvider(request.method).request(request);
+    const provider = this.getProvider(request.method);
+    return provider.request(request);
   }
 
   // -- Private ----------------------------------------------- //
+
+  private getRouteProviderId(method: string): string | undefined {
+    let providerId: string | undefined;
+    const matchingRoute = this.map[method];
+    if (matchingRoute) {
+      providerId = matchingRoute;
+    }
+    if (typeof providerId === "undefined") {
+      this.getTrailingWildcardRoutes().forEach(route => {
+        if (method.startsWith(route)) {
+          providerId = this.map[route];
+        }
+      });
+    }
+    if (typeof providerId === "undefined") {
+      this.getLeadingWildcardRoutes().forEach(route => {
+        if (method.endsWith(route)) {
+          providerId = this.map[route];
+        }
+      });
+    }
+    if (typeof providerId === "undefined") {
+      const defaultRoute = this.map["*"];
+      if (typeof defaultRoute !== "undefined") {
+        providerId = this.map[defaultRoute];
+      }
+    }
+    return providerId;
+  }
+
+  private getLeadingWildcardRoutes(): string[] {
+    return Object.keys(this.map).filter(isValidLeadingWildcardRoute);
+  }
+
+  private getTrailingWildcardRoutes(): string[] {
+    return Object.keys(this.map).filter(isValidTrailingWildcardRoute);
+  }
 
   private register(config: MultiServiceProviderConfig): MultiServiceProviderMap {
     const routesDiff = difference(Object.keys(config.providers), Object.keys(config.routes));
@@ -116,13 +162,16 @@ export class MultiServiceProvider implements IMultiServiceProvider {
     Object.keys(config.routes).forEach((provider: string) => {
       const routes = config.routes[provider];
 
-      routes.forEach((method: string) => {
-        if (typeof map[method] !== "undefined") {
+      routes.forEach((route: string) => {
+        if (!isValidRoute(route)) {
+          throw new Error(`Route is invalid: ${route}`);
+        }
+        if (typeof map[route] !== "undefined") {
           throw new Error(
-            `Route already registred for method ${method} by provider ${map[method]} conflicting with provider ${provider}`,
+            `Route already registred for route ${route} by provider ${map[route]} conflicting with provider ${provider}`,
           );
         }
-        map[method] = provider;
+        map[route] = provider;
       });
     });
 

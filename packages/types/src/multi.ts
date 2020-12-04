@@ -3,11 +3,11 @@ import { IBaseJsonRpcProvider, IJsonRpcProvider } from "./provider";
 import { IJsonRpcValidator } from "./validator";
 
 export interface JsonRpcProvidersMap {
-  [name: string]: IJsonRpcProvider;
+  [providerId: string]: IJsonRpcProvider;
 }
 
 export interface JsonRpcRoutesConfig {
-  [provider: string]: string[];
+  [providerId: string]: string[];
 }
 
 export interface BaseMultiServiceProviderConfig {
@@ -18,7 +18,9 @@ export interface MultiServiceProviderConfig extends BaseMultiServiceProviderConf
   schemas?: JsonRpcMethodsMap;
 }
 
-export type MultiServiceProviderMap = Record<string, string>;
+export type MultiServiceProviderMap = {
+  [route: string]: string;
+};
 
 export abstract class IMultiServiceProvider extends IBaseJsonRpcProvider {
   public abstract map: MultiServiceProviderMap;

@@ -87,7 +87,7 @@ const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
     signer: new JsonRpcProvider({} as ISignerConnection),
   },
   routes: {
-    http: ["eth_chainId", "eth_blockNumber"],
+    http: ["eth_*"],
     signer: ["eth_accounts", "eth_sendTransaction"],
   },
   state: {
