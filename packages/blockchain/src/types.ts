@@ -1,19 +1,17 @@
-import { IEvents, JsonRpcRequest, JsonRpcResponse } from "@json-rpc-tools/utils";
+import { IJsonRpcConnection, IJsonRpcProvider } from "@json-rpc-tools/utils";
 
-export interface KeyPair {
+interface KeyPair {
   privateKey: string;
   publicKey: string;
 }
 
-export abstract class ISigner {
-  public abstract account: string;
-
-  constructor(private keyPair: KeyPair) {}
-
-  public abstract sign(message: string): Promise<string>;
+export interface SignerConnectionOptions {
+  keyPair: KeyPair;
+  provider?: string | IJsonRpcProvider;
 }
 
-export abstract class ISignerMiddleware extends IEvents {
-  public abstract before(request: JsonRpcRequest): Promise<string>;
-  public abstract after(signature: string): Promise<JsonRpcResponse>;
+export abstract class ISignerConnection extends IJsonRpcConnection {
+  constructor(opts: SignerConnectionOptions) {
+    super();
+  }
 }

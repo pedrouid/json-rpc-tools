@@ -9,9 +9,12 @@ export interface JsonRpcProvidersMap {
 export interface JsonRpcRoutesConfig {
   [provider: string]: string[];
 }
-export interface MultiServiceProviderConfig {
+
+export interface BaseMultiServiceProviderConfig {
   providers: JsonRpcProvidersMap;
   routes: JsonRpcRoutesConfig;
+}
+export interface MultiServiceProviderConfig extends BaseMultiServiceProviderConfig {
   schemas?: JsonRpcMethodsMap;
 }
 

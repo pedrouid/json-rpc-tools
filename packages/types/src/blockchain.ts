@@ -1,5 +1,5 @@
-import { JsonRpcError, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
-import { IMultiServiceProvider, MultiServiceProviderConfig } from "./multi";
+import { JsonRpcError, JsonRpcMethodsMap, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { BaseMultiServiceProviderConfig, IMultiServiceProvider } from "./multi";
 import { IEvents, IStore } from "./misc";
 
 export abstract class IPendingRequests {
@@ -32,12 +32,17 @@ export abstract class IBlockchainAuthenticator extends IEvents {
   public abstract request(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 }
 
-export interface BlockchainProviderConfig extends MultiServiceProviderConfig {
-  state: {
-    chainId: string;
-    accounts: string;
-  };
+export interface BlockchainStateJsonRpcConfig {
+  chainId: string;
+  accounts: string;
 }
+
+export interface BlockchainJsonRpcConfig {
+  state: BlockchainStateJsonRpcConfig;
+  schemas?: JsonRpcMethodsMap;
+}
+
+export type BlockchainProviderConfig = BlockchainJsonRpcConfig & BaseMultiServiceProviderConfig;
 
 export abstract class IBlockchainProvider extends IMultiServiceProvider {
   constructor(public config: BlockchainProviderConfig) {
