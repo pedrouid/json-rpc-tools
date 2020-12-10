@@ -1,7 +1,13 @@
 import { JsonRpcError, JsonRpcSchemaMap, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
-import { IMultiServiceProvider, JsonRpcProvidersMap, JsonRpcRoutesConfig } from "./multi";
+import {
+  IMultiServiceProvider,
+  JsonRpcProvidersMap,
+  JsonRpcRoutesConfig,
+  MultiServiceProviderMap,
+} from "./multi";
 import { IEvents, IStore } from "./misc";
 import { IJsonRpcProvider } from "./provider";
+import { IJsonRpcValidator } from "./validator";
 
 export abstract class IPendingRequests {
   public chainId: string | undefined;
@@ -68,6 +74,11 @@ export interface BlockchainProviderConfig extends BlockchainJsonRpcConfig {
 }
 
 export abstract class IBlockchainProvider extends IMultiServiceProvider {
+  public abstract map: MultiServiceProviderMap;
+  public abstract providers: BlockchainProviders;
+  public abstract routes: BlockchainRoutes;
+  public abstract validator: IJsonRpcValidator | undefined;
+
   constructor(public config: BlockchainProviderConfig) {
     super(config);
   }
