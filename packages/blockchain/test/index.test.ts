@@ -3,9 +3,11 @@ import * as chai from "chai";
 import { JsonRpcProvider } from "@json-rpc-tools/provider";
 import {
   JsonSchema,
+  JsonRpcSchemaMap,
   BlockchainProviderConfig,
   formatJsonRpcRequest,
   isJsonRpcError,
+  BlockchainJsonRpcConfig,
 } from "@json-rpc-tools/utils";
 
 import { BlockchainAuthenticator, BlockchainProvider, ISignerConnection } from "../src";
@@ -25,7 +27,7 @@ const ETHEREUM_TX_SCHEMA: JsonSchema = {
   },
 };
 
-const ETHEREUM_JSONRPC_SCHEMAS = {
+const ETHEREUM_JSONRPC_SCHEMA_MAP: JsonRpcSchemaMap = {
   eth_blockNumber: {
     name: "eth_blockNumber",
     description: "Fetches highest block number",
@@ -81,11 +83,7 @@ const ETHEREUM_JSONRPC_SCHEMAS = {
   },
 };
 
-const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
-  providers: {
-    http: new JsonRpcProvider(`https://rpc.slock.it/mainnet`),
-    signer: new JsonRpcProvider({} as ISignerConnection),
-  },
+const ETHEREUM_JSONRPC_CONFIG: BlockchainJsonRpcConfig = {
   routes: {
     http: ["eth_*"],
     signer: ["eth_accounts", "eth_sendTransaction"],
@@ -94,7 +92,15 @@ const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
     chainId: "eth_chainId",
     accounts: "eth_accounts",
   },
-  schemas: ETHEREUM_JSONRPC_SCHEMAS,
+  schemas: ETHEREUM_JSONRPC_SCHEMA_MAP,
+};
+
+const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
+  providers: {
+    http: new JsonRpcProvider(`https://rpc.slock.it/mainnet`),
+    signer: new JsonRpcProvider({} as ISignerConnection),
+  },
+  ...ETHEREUM_JSONRPC_CONFIG,
 };
 
 describe("BlockchainAuthenticator", () => {

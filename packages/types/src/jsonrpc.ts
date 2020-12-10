@@ -7,22 +7,19 @@ export interface JsonRpcProviderMessage<T = any> {
   data: T;
 }
 
-export interface JsonRpcMethodSchema {
+export interface JsonRpcSchema {
   name: string;
   description: string;
   params: JsonSchema;
   result: JsonSchema;
 }
 
-export interface JsonRpcMethodsMap {
-  [method: string]: JsonRpcMethodSchema;
-}
-export interface JsonRpcConfig {
-  methods: JsonRpcMethodsMap;
+export interface JsonRpcSchemaMap {
+  [method: string]: JsonRpcSchema;
 }
 
 export interface JsonRpcSchemas {
-  schemas: JsonRpcMethodsMap;
+  schemas: JsonRpcSchemaMap;
 }
 
 export interface JsonRpcRequest<T = any> {

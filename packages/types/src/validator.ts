@@ -1,4 +1,4 @@
-import { JsonRpcMethodSchema, JsonRpcMethodsMap, JsonRpcPayload } from "./jsonrpc";
+import { JsonRpcSchema, JsonRpcSchemaMap, JsonRpcPayload } from "./jsonrpc";
 
 export interface JsonRpcValidationResult {
   valid: boolean;
@@ -17,8 +17,8 @@ export interface JsonRpcValidationInvalid extends JsonRpcValidationResult {
 export type JsonRpcValidation = JsonRpcValidationValid | JsonRpcValidationInvalid;
 
 export abstract class IJsonRpcValidator {
-  constructor(public methods: JsonRpcMethodsMap) {}
+  constructor(public methods: JsonRpcSchemaMap) {}
   public abstract isSupported(method: string): boolean;
-  public abstract getSchema(method: string): JsonRpcMethodSchema;
+  public abstract getSchema(method: string): JsonRpcSchema;
   public abstract validate(payload: JsonRpcPayload, method?: string): JsonRpcValidation;
 }

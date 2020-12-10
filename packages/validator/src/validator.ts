@@ -4,14 +4,14 @@ import {
   isJsonRpcRequest,
   isJsonRpcResult,
   validateJsonRpcError,
-  JsonRpcMethodSchema,
+  JsonRpcSchema,
   JsonRpcPayload,
   JsonRpcValidation,
-  JsonRpcMethodsMap,
+  JsonRpcSchemaMap,
 } from "@json-rpc-tools/utils";
 
 export class JsonRpcValidator implements IJsonRpcValidator {
-  constructor(public methods: JsonRpcMethodsMap) {
+  constructor(public methods: JsonRpcSchemaMap) {
     this.methods = methods;
   }
 
@@ -19,7 +19,7 @@ export class JsonRpcValidator implements IJsonRpcValidator {
     return Object.keys(this.methods).includes(method);
   }
 
-  public getSchema(method: string): JsonRpcMethodSchema {
+  public getSchema(method: string): JsonRpcSchema {
     const schema = this.methods[method];
     if (typeof schema === "undefined") {
       throw new Error(`JSON-RPC method not supported: ${method}`);

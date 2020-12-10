@@ -1,4 +1,4 @@
-import { JsonRpcError, JsonRpcMethodsMap, JsonRpcRequest } from "./jsonrpc";
+import { JsonRpcError, JsonRpcSchemaMap, JsonRpcRequest } from "./jsonrpc";
 import { IBaseJsonRpcProvider, IJsonRpcProvider } from "./provider";
 import { IJsonRpcValidator } from "./validator";
 
@@ -15,7 +15,7 @@ export interface BaseMultiServiceProviderConfig {
   routes: JsonRpcRoutesConfig;
 }
 export interface MultiServiceProviderConfig extends BaseMultiServiceProviderConfig {
-  schemas?: JsonRpcMethodsMap;
+  schemas?: JsonRpcSchemaMap;
 }
 
 export type MultiServiceProviderMap = {

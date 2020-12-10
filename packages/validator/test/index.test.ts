@@ -1,8 +1,7 @@
 import "mocha";
 import * as chai from "chai";
 import {
-  JsonRpcConfig,
-  JsonRpcMethodsMap,
+  JsonRpcSchemaMap,
   JsonRpcRequest,
   JsonRpcResponse,
   JsonSchema,
@@ -23,7 +22,7 @@ const ETHEREUM_TX_JSONRPC_SCHEMA: JsonSchema = {
   },
 };
 
-const ETHEREUM_JSONRPC_METHODS_MAP: JsonRpcMethodsMap = {
+const ETHEREUM_JSONRPC_METHODS_MAP: JsonRpcSchemaMap = {
   eth_accounts: {
     name: "eth_accounts",
     description: "Exposes user account addresses",

@@ -1,10 +1,5 @@
-import { JsonRpcError, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
-import {
-  IMultiServiceProvider,
-  JsonRpcProvidersMap,
-  JsonRpcRoutesConfig,
-  MultiServiceProviderConfig,
-} from "./multi";
+import { JsonRpcError, JsonRpcSchemaMap, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import { IMultiServiceProvider, JsonRpcProvidersMap, JsonRpcRoutesConfig } from "./multi";
 import { IEvents, IStore } from "./misc";
 import { IJsonRpcProvider } from "./provider";
 
@@ -59,13 +54,17 @@ export interface BlockchainRoutesWithWebsockets extends BaseBlockchainRoutes {
 
 export type BlockchainRoutes = BaseBlockchainRoutes | BlockchainRoutesWithWebsockets;
 
-export interface BlockchainProviderConfig extends MultiServiceProviderConfig {
-  providers: BlockchainProviders;
+export interface BlockchainJsonRpcConfig {
   routes: BlockchainRoutes;
   state: {
     chainId: string;
     accounts: string;
   };
+  schemas?: JsonRpcSchemaMap;
+}
+
+export interface BlockchainProviderConfig extends BlockchainJsonRpcConfig {
+  providers: BlockchainProviders;
 }
 
 export abstract class IBlockchainProvider extends IMultiServiceProvider {
