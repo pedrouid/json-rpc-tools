@@ -1,6 +1,12 @@
-import { JsonRpcError, JsonRpcMethodsMap, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
-import { BaseMultiServiceProviderConfig, IMultiServiceProvider } from "./multi";
+import { JsonRpcError, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
+import {
+  IMultiServiceProvider,
+  JsonRpcProvidersMap,
+  JsonRpcRoutesConfig,
+  MultiServiceProviderConfig,
+} from "./multi";
 import { IEvents, IStore } from "./misc";
+import { IJsonRpcProvider } from "./provider";
 
 export abstract class IPendingRequests {
   public chainId: string | undefined;
@@ -32,22 +38,42 @@ export abstract class IBlockchainAuthenticator extends IEvents {
   public abstract request(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 }
 
-export interface BlockchainStateJsonRpcConfig {
-  chainId: string;
-  accounts: string;
+export interface BaseBlockchainProviders extends JsonRpcProvidersMap {
+  http: IJsonRpcProvider;
+  signer: IJsonRpcProvider;
 }
 
-export interface BlockchainJsonRpcConfig {
-  state: BlockchainStateJsonRpcConfig;
-  schemas?: JsonRpcMethodsMap;
+export interface BlockchainProvidersWithWebsockets extends BaseBlockchainProviders {
+  ws: IJsonRpcProvider;
 }
 
-export type BlockchainProviderConfig = BlockchainJsonRpcConfig & BaseMultiServiceProviderConfig;
+export type BlockchainProviders = BaseBlockchainProviders | BlockchainProvidersWithWebsockets;
+export interface BaseBlockchainRoutes extends JsonRpcRoutesConfig {
+  http: string[];
+  signer: string[];
+}
+
+export interface BlockchainRoutesWithWebsockets extends BaseBlockchainRoutes {
+  ws: string[];
+}
+
+export type BlockchainRoutes = BaseBlockchainRoutes | BlockchainRoutesWithWebsockets;
+
+export interface BlockchainProviderConfig extends MultiServiceProviderConfig {
+  providers: BlockchainProviders;
+  routes: BlockchainRoutes;
+  state: {
+    chainId: string;
+    accounts: string;
+  };
+}
 
 export abstract class IBlockchainProvider extends IMultiServiceProvider {
   constructor(public config: BlockchainProviderConfig) {
     super(config);
   }
+
   public abstract getChainId(): Promise<string>;
+
   public abstract getAccounts(): Promise<string[]>;
 }

@@ -87,5 +87,3 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     return this.provider.map[method] === "signer";
   }
 }
-
-["eth_chainId", "eth_*", "*", "eth_sign*", "eth+", "**", "eth_sign*Typed"];

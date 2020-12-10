@@ -8,6 +8,9 @@ import {
 export class BlockchainProvider extends MultiServiceProvider implements IBlockchainProvider {
   constructor(public config: BlockchainProviderConfig) {
     super(config);
+    if (typeof config.providers.http === "undefined") {
+      throw new Error("HTTP provider is required for BlockchainProvider");
+    }
     if (typeof config.providers.signer === "undefined") {
       throw new Error("Signer provider is required for BlockchainProvider");
     }
