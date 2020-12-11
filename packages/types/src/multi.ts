@@ -1,13 +1,10 @@
 import { JsonRpcError, JsonRpcSchemaMap, JsonRpcRequest } from "./jsonrpc";
 import { IBaseJsonRpcProvider, IJsonRpcProvider } from "./provider";
+import { IJsonRpcRouter, JsonRpcRoutesConfig } from "./router";
 import { IJsonRpcValidator } from "./validator";
 
 export interface JsonRpcProvidersMap {
   [providerId: string]: IJsonRpcProvider;
-}
-
-export interface JsonRpcRoutesConfig {
-  [providerId: string]: string[];
 }
 
 export interface BaseMultiServiceProviderConfig {
@@ -18,14 +15,9 @@ export interface MultiServiceProviderConfig extends BaseMultiServiceProviderConf
   schemas?: JsonRpcSchemaMap;
 }
 
-export type MultiServiceProviderMap = {
-  [route: string]: string;
-};
-
 export abstract class IMultiServiceProvider extends IBaseJsonRpcProvider {
-  public abstract map: MultiServiceProviderMap;
   public abstract providers: JsonRpcProvidersMap;
-  public abstract routes: JsonRpcRoutesConfig;
+  public abstract router: IJsonRpcRouter;
   public abstract validator: IJsonRpcValidator | undefined;
 
   constructor(public config: MultiServiceProviderConfig) {
@@ -33,6 +25,6 @@ export abstract class IMultiServiceProvider extends IBaseJsonRpcProvider {
   }
 
   public abstract isSupported(method: string): boolean;
-  public abstract getProvider(method: string): IJsonRpcProvider;
   public abstract assertRequest(request: JsonRpcRequest): JsonRpcError | undefined;
+  public abstract getProvider(method: string): IJsonRpcProvider;
 }

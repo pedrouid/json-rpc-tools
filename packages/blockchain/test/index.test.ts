@@ -1,6 +1,5 @@
 import "mocha";
 import * as chai from "chai";
-import { JsonRpcProvider } from "@json-rpc-tools/provider";
 import {
   JsonSchema,
   JsonRpcSchemaMap,
@@ -12,7 +11,9 @@ import {
 
 import { BlockchainAuthenticator, BlockchainProvider, ISignerConnection } from "../src";
 
-const ETHEREUM_CHAIN_ID = "1";
+const ETHEREUM_CHAIN_REFERENCE = "1";
+
+const ETHEREUM_CHAIN_ID = `eip155:${ETHEREUM_CHAIN_REFERENCE}`;
 
 const ETHEREUM_TX_SCHEMA: JsonSchema = {
   type: "object",
@@ -83,39 +84,52 @@ const ETHEREUM_JSONRPC_SCHEMA_MAP: JsonRpcSchemaMap = {
   },
 };
 
+const ETHEREUM_SIGNING_METHODS = [
+  "eth_sign",
+  "eth_signTypedData",
+  "eth_sendTransaction",
+  "personal_sign",
+];
+
 const ETHEREUM_JSONRPC_CONFIG: BlockchainJsonRpcConfig = {
   routes: {
     http: ["eth_*"],
-    signer: ["eth_accounts", "eth_sendTransaction"],
-  },
-  state: {
-    chainId: "eth_chainId",
-    accounts: "eth_accounts",
+    signer: ["eth_accounts", ...ETHEREUM_SIGNING_METHODS],
   },
   schemas: ETHEREUM_JSONRPC_SCHEMA_MAP,
 };
 
 const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
-  providers: {
-    http: new JsonRpcProvider(`https://rpc.slock.it/mainnet`),
-    signer: new JsonRpcProvider({} as ISignerConnection),
+  chainId: ETHEREUM_CHAIN_ID,
+  routes: ETHEREUM_JSONRPC_CONFIG.routes.http,
+  signer: {
+    routes: ETHEREUM_JSONRPC_CONFIG.routes.signer,
+    connection: {} as ISignerConnection,
   },
-  ...ETHEREUM_JSONRPC_CONFIG,
+  validator: {
+    schemas: ETHEREUM_JSONRPC_SCHEMA_MAP,
+  },
 };
 
 describe("BlockchainAuthenticator", () => {
   let authenticator: BlockchainAuthenticator;
   beforeAll(() => {
-    const provider = new BlockchainProvider(ETHEREUM_PROVIDER_CONFIG);
-    authenticator = new BlockchainAuthenticator(provider);
+    const provider = new BlockchainProvider(
+      `https://rpc.slock.it/mainnet`,
+      ETHEREUM_PROVIDER_CONFIG,
+    );
+    authenticator = new BlockchainAuthenticator({
+      provider,
+      requiredApproval: ETHEREUM_SIGNING_METHODS,
+    });
   });
   it("init", async () => {
     chai.expect(!!authenticator).to.be.true;
   });
   it("eth_chainId", async () => {
     const request = formatJsonRpcRequest("eth_chainId", []);
-    const response = await authenticator.request(request);
+    const response = await authenticator.resolve(request);
     if (isJsonRpcError(response)) return;
-    chai.expect(response.result).to.eql(`0x${ETHEREUM_CHAIN_ID}`);
+    chai.expect(response.result).to.eql(`0x${ETHEREUM_CHAIN_REFERENCE}`);
   });
 });

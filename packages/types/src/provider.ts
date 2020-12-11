@@ -33,4 +33,14 @@ export abstract class IJsonRpcProvider extends IBaseJsonRpcProvider {
   }
 
   public abstract connect(connection?: string | IJsonRpcConnection): Promise<void>;
+
+  // ---------- Protected ----------------------------------------------- //
+
+  protected abstract setConnection(connection?: string | IJsonRpcConnection): IJsonRpcConnection;
+
+  protected abstract onPayload(payload: JsonRpcPayload): void;
+
+  protected abstract open(connection?: string | IJsonRpcConnection): Promise<void>;
+
+  protected abstract close(): Promise<void>;
 }

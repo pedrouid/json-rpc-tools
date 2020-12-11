@@ -1,6 +1,7 @@
 import "mocha";
 import * as chai from "chai";
 import isEqual from "lodash.isequal";
+import { delay } from "@pedrouid/timestamp";
 
 import {
   formatJsonRpcRequest,
@@ -115,11 +116,15 @@ describe("@json-rpc-tools/utils", () => {
       chai.expect(after >= time).to.be.true;
     });
 
-    it("returns all different values", () => {
-      const results: number[] = [];
-      for (let i = 0; i < 10; i++) {
-        results.push(payloadId());
-      }
+    it("returns all different values", async () => {
+      const results: number[] = await Promise.all(
+        Array(10)
+          .fill(0)
+          .map(async () => {
+            await delay(10);
+            return payloadId();
+          }),
+      );
       const duplicates = findDuplicates(results);
       chai.expect(duplicates.length === 0).to.be.true;
     });

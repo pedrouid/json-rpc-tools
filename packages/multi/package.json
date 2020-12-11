@@ -34,6 +34,7 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
+    "@json-rpc-tools/router": "^1.4.1",
     "@json-rpc-tools/utils": "^1.4.1",
     "@json-rpc-tools/validator": "^1.4.1",
     "lodash.difference": "^4.5.0"

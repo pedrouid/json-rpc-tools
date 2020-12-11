@@ -1,12 +1,13 @@
-import { JsonRpcError, JsonRpcSchemaMap, JsonRpcRequest, JsonRpcResponse } from "./jsonrpc";
 import {
-  IMultiServiceProvider,
-  JsonRpcProvidersMap,
-  JsonRpcRoutesConfig,
-  MultiServiceProviderMap,
-} from "./multi";
+  JsonRpcError,
+  JsonRpcRequest,
+  JsonRpcResponse,
+  JsonRpcSchemaMap,
+  JsonRpcSchemas,
+} from "./jsonrpc";
 import { IEvents, IStore } from "./misc";
-import { IJsonRpcProvider } from "./provider";
+import { IJsonRpcConnection, IJsonRpcProvider } from "./provider";
+import { IJsonRpcRouter, JsonRpcRoutesConfig } from "./router";
 import { IJsonRpcValidator } from "./validator";
 
 export abstract class IPendingRequests {
@@ -19,41 +20,35 @@ export abstract class IPendingRequests {
   public abstract delete(id: number): Promise<void>;
 }
 
-export abstract class IBlockchainAuthenticator extends IEvents {
-  public abstract pending: IPendingRequests;
+export interface BlockchainAuthenticatorConfig {
+  provider: IBlockchainProvider;
+  requiredApproval: string[];
+  store?: IStore;
+}
 
-  constructor(public provider: IBlockchainProvider, store?: IStore) {
+export abstract class IBlockchainAuthenticator extends IEvents {
+  public abstract chainId: string;
+
+  public abstract pending: IPendingRequests;
+  public abstract provider: IBlockchainProvider;
+
+  constructor(public config: BlockchainAuthenticatorConfig) {
     super();
   }
 
   public abstract init(): Promise<void>;
 
-  public abstract getChainId(): Promise<string>;
-
-  public abstract getAccounts(): Promise<string[]>;
-
   public abstract approve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 
   public abstract reject(request: JsonRpcRequest): Promise<JsonRpcError>;
 
-  public abstract request(request: JsonRpcRequest): Promise<JsonRpcResponse>;
+  public abstract resolve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 }
 
-export interface BaseBlockchainProviders extends JsonRpcProvidersMap {
-  http: IJsonRpcProvider;
-  signer: IJsonRpcProvider;
-}
-
-export interface BlockchainProvidersWithWebsockets extends BaseBlockchainProviders {
-  ws: IJsonRpcProvider;
-}
-
-export type BlockchainProviders = BaseBlockchainProviders | BlockchainProvidersWithWebsockets;
 export interface BaseBlockchainRoutes extends JsonRpcRoutesConfig {
   http: string[];
   signer: string[];
 }
-
 export interface BlockchainRoutesWithWebsockets extends BaseBlockchainRoutes {
   ws: string[];
 }
@@ -62,28 +57,33 @@ export type BlockchainRoutes = BaseBlockchainRoutes | BlockchainRoutesWithWebsoc
 
 export interface BlockchainJsonRpcConfig {
   routes: BlockchainRoutes;
-  state: {
-    chainId: string;
-    accounts: string;
-  };
   schemas?: JsonRpcSchemaMap;
 }
 
-export interface BlockchainProviderConfig extends BlockchainJsonRpcConfig {
-  providers: BlockchainProviders;
+export interface BlockchainSubproviderConfig {
+  connection: string | IJsonRpcConnection;
+  routes: string[];
+}
+export interface BlockchainProviderConfig {
+  chainId: string;
+  routes: string[];
+  signer?: BlockchainSubproviderConfig;
+  subscriber?: BlockchainSubproviderConfig;
+  validator?: JsonRpcSchemas;
 }
 
-export abstract class IBlockchainProvider extends IMultiServiceProvider {
-  public abstract map: MultiServiceProviderMap;
-  public abstract providers: BlockchainProviders;
-  public abstract routes: BlockchainRoutes;
+export abstract class IBlockchainProvider extends IJsonRpcProvider {
+  public abstract chainId: string;
+  public abstract config: BlockchainProviderConfig;
+  public abstract router: IJsonRpcRouter;
+  public abstract signer: IJsonRpcProvider | undefined;
+  public abstract subscriber: IJsonRpcProvider | undefined;
   public abstract validator: IJsonRpcValidator | undefined;
 
-  constructor(public config: BlockchainProviderConfig) {
-    super(config);
+  constructor(connection: string | IJsonRpcConnection, config: BlockchainProviderConfig) {
+    super(connection);
   }
 
-  public abstract getChainId(): Promise<string>;
-
-  public abstract getAccounts(): Promise<string[]>;
+  public abstract isSupported(method: string): boolean;
+  public abstract assertRequest(request: JsonRpcRequest): JsonRpcError | undefined;
 }

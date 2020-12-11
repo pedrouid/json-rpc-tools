@@ -34,9 +34,10 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/multi": "^1.4.1",
+    "@json-rpc-tools/router": "^1.4.1",
     "@json-rpc-tools/provider": "^1.4.1",
     "@json-rpc-tools/utils": "^1.4.1",
+    "@json-rpc-tools/validator": "^1.4.1",
     "@pedrouid/iso-store": "^1.0.4"
   },
   "devDependencies": {

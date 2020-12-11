@@ -13,12 +13,13 @@ import { HttpConnection } from "./http";
 import { WsConnection } from "./ws";
 import { isHttpUrl } from "./url";
 
-export class JsonRpcProvider implements IJsonRpcProvider {
+export class JsonRpcProvider extends IJsonRpcProvider {
   public events = new EventEmitter();
 
   public connection: IJsonRpcConnection;
 
   constructor(connection: string | IJsonRpcConnection) {
+    super(connection);
     this.connection = this.setConnection(connection);
   }
 
@@ -62,9 +63,9 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     });
   }
 
-  // ---------- Private ----------------------------------------------- //
+  // ---------- Protected ----------------------------------------------- //
 
-  private setConnection(connection: string | IJsonRpcConnection = this.connection) {
+  protected setConnection(connection: string | IJsonRpcConnection = this.connection) {
     return typeof connection === "string"
       ? isHttpUrl(connection)
         ? new HttpConnection(connection)
@@ -72,7 +73,7 @@ export class JsonRpcProvider implements IJsonRpcProvider {
       : connection;
   }
 
-  private onPayload(payload: JsonRpcPayload): void {
+  protected onPayload(payload: JsonRpcPayload): void {
     this.events.emit("payload", payload);
     if (isJsonRpcResponse(payload)) {
       this.events.emit(`${payload.id}`, payload);
@@ -84,7 +85,7 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     }
   }
 
-  private async open(connection: string | IJsonRpcConnection = this.connection) {
+  protected async open(connection: string | IJsonRpcConnection = this.connection) {
     if (this.connection === connection && this.connection.connected) return;
     if (this.connection.connected) this.close();
     this.connection = this.setConnection();
@@ -94,7 +95,7 @@ export class JsonRpcProvider implements IJsonRpcProvider {
     this.events.emit("connect");
   }
 
-  private async close() {
+  protected async close() {
     await this.connection.close();
     this.events.emit("disconnect");
   }

@@ -1,5 +1,4 @@
 import { EventEmitter } from "events";
-import { IStore } from "@pedrouid/iso-store";
 import {
   JsonRpcRequest,
   JsonRpcResponse,
@@ -8,6 +7,7 @@ import {
   IBlockchainAuthenticator,
   formatJsonRpcError,
   JsonRpcError,
+  BlockchainAuthenticatorConfig,
 } from "@json-rpc-tools/utils";
 
 import { PendingRequests } from "./pending";
@@ -16,10 +16,16 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   public events = new EventEmitter();
 
   public pending: PendingRequests;
+  public provider: IBlockchainProvider;
 
-  constructor(public provider: IBlockchainProvider, store?: IStore) {
-    this.provider = provider;
-    this.pending = new PendingRequests(store);
+  constructor(public config: BlockchainAuthenticatorConfig) {
+    this.config = config;
+    this.provider = config.provider;
+    this.pending = new PendingRequests(config.store);
+  }
+
+  get chainId(): string {
+    return this.provider.chainId;
   }
 
   public on(event: string, listener: any): void {
@@ -35,15 +41,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   }
 
   public async init(): Promise<void> {
-    await this.pending.init(await this.provider.getChainId());
-  }
-
-  public async getChainId(): Promise<string> {
-    return this.provider.getChainId();
-  }
-
-  public async getAccounts(): Promise<string[]> {
-    return this.provider.getAccounts();
+    await this.pending.init(this.provider.chainId);
   }
 
   public async approve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
@@ -63,12 +61,12 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     return response;
   }
 
-  public async request(request: JsonRpcRequest): Promise<JsonRpcResponse> {
+  public async resolve(request: JsonRpcRequest): Promise<JsonRpcResponse> {
     const error = this.provider.assertRequest(request);
     if (typeof error !== "undefined") {
       return error;
     }
-    if (this.requiresApproval(request.method)) {
+    if (this.config.requiredApproval.includes(request.method)) {
       await this.pending.set(request);
       this.events.emit("pending_approval", request);
       return new Promise((resolve, reject) => {
@@ -80,10 +78,5 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     }
     const result = await this.provider.request(request);
     return formatJsonRpcResult(request.id, result);
-  }
-  // -- Private ----------------------------------------------- //
-
-  private requiresApproval(method: string): boolean {
-    return this.provider.map[method] === "signer";
   }
 }

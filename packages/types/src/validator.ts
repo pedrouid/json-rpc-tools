@@ -17,7 +17,7 @@ export interface JsonRpcValidationInvalid extends JsonRpcValidationResult {
 export type JsonRpcValidation = JsonRpcValidationValid | JsonRpcValidationInvalid;
 
 export abstract class IJsonRpcValidator {
-  constructor(public methods: JsonRpcSchemaMap) {}
+  constructor(public schemas: JsonRpcSchemaMap) {}
   public abstract isSupported(method: string): boolean;
   public abstract getSchema(method: string): JsonRpcSchema;
   public abstract validate(payload: JsonRpcPayload, method?: string): JsonRpcValidation;

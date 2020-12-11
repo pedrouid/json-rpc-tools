@@ -11,16 +11,16 @@ import {
 } from "@json-rpc-tools/utils";
 
 export class JsonRpcValidator implements IJsonRpcValidator {
-  constructor(public methods: JsonRpcSchemaMap) {
-    this.methods = methods;
+  constructor(public schemas: JsonRpcSchemaMap) {
+    this.schemas = schemas;
   }
 
   public isSupported(method: string): boolean {
-    return Object.keys(this.methods).includes(method);
+    return Object.keys(this.schemas).includes(method);
   }
 
   public getSchema(method: string): JsonRpcSchema {
-    const schema = this.methods[method];
+    const schema = this.schemas[method];
     if (typeof schema === "undefined") {
       throw new Error(`JSON-RPC method not supported: ${method}`);
     }
