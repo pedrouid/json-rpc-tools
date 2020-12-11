@@ -17,7 +17,6 @@ import {
   formatJsonRpcError,
   INVALID_REQUEST,
 } from "@json-rpc-tools/utils";
-import { BlockchainSubprovider } from "./subprovider";
 
 function getRoutes(config: BlockchainProviderConfig) {
   const routes: JsonRpcRoutesConfig = {
@@ -50,10 +49,10 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     this.config = config;
     this.router = new JsonRpcRouter(getRoutes(config));
     if (typeof config.signer !== "undefined") {
-      this.signer = new BlockchainSubprovider(this, config.signer.connection);
+      this.signer = new JsonRpcProvider(config.signer.connection);
     }
     if (typeof config.subscriber !== "undefined") {
-      this.subscriber = new BlockchainSubprovider(this, config.subscriber.connection);
+      this.subscriber = new JsonRpcProvider(config.subscriber.connection);
     }
     if (typeof config.validator !== "undefined") {
       this.validator = new JsonRpcValidator(config.validator.schemas);
@@ -69,10 +68,22 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
   }
 
   public on(event: string, listener: any): void {
+    if (event === "message") {
+      if (typeof this.subscriber === "undefined") {
+        throw new Error("Cannot subscribe to messages without configuring Subscriber provider");
+      }
+      this.subscriber.events.on(event, listener);
+    }
     this.events.on(event, listener);
   }
 
   public once(event: string, listener: any): void {
+    if (event === "message") {
+      if (typeof this.subscriber === "undefined") {
+        throw new Error("Cannot subscribe to messages without configuring Subscriber provider");
+      }
+      this.subscriber.events.once(event, listener);
+    }
     this.events.once(event, listener);
   }
 
