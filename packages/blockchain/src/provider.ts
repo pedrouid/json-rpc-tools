@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import JsonRpcProvider from "@json-rpc-tools/provider";
+import JsonRpcProvider, { HttpConnection, WsConnection } from "@json-rpc-tools/provider";
 import JsonRpcRouter from "@json-rpc-tools/router";
 import JsonRpcValidator from "@json-rpc-tools/validator";
 import {
@@ -44,7 +44,10 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
 
   constructor(connection: string | IJsonRpcConnection, config: BlockchainProviderConfig) {
     super(connection);
-    this.connection = this.setConnection(connection);
+    this.connection = this.setConnection(
+      // This enforces that url is used as HTTP for default connection
+      typeof connection === "string" ? new HttpConnection(connection) : connection,
+    );
     this.chainId = config.chainId;
     this.config = config;
     this.router = new JsonRpcRouter(getRoutes(config));
@@ -52,7 +55,10 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
       this.signer = new JsonRpcProvider(config.signer.connection);
     }
     if (typeof config.subscriber !== "undefined") {
-      this.subscriber = new JsonRpcProvider(config.subscriber.connection);
+      this.subscriber = new JsonRpcProvider(
+        // This enforces that url is used as WS for subscriber connection
+        typeof connection === "string" ? new WsConnection(connection) : connection,
+      );
     }
     if (typeof config.validator !== "undefined") {
       this.validator = new JsonRpcValidator(config.validator.schemas);
@@ -61,33 +67,75 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
 
   public async connect(connection: string | IJsonRpcConnection = this.connection): Promise<void> {
     await this.open(connection);
+    if (typeof this.signer !== "undefined") {
+      await this.signer.connect();
+    }
+    if (typeof this.subscriber !== "undefined") {
+      await this.subscriber.connect();
+    }
   }
 
   public async disconnect(): Promise<void> {
     await this.close();
+    if (typeof this.signer !== "undefined") {
+      await this.signer.disconnect();
+    }
+    if (typeof this.subscriber !== "undefined") {
+      await this.subscriber.disconnect();
+    }
   }
 
   public on(event: string, listener: any): void {
     if (event === "message") {
-      if (typeof this.subscriber === "undefined") {
-        throw new Error("Cannot subscribe to messages without configuring Subscriber provider");
+      if (typeof this.subscriber === "undefined" && typeof this.signer === "undefined") {
+        throw new Error(
+          "Cannot subscribe to messages without configuring Signer and/or Subscriber provider",
+        );
       }
-      this.subscriber.events.on(event, listener);
+      if (typeof this.signer !== "undefined") {
+        this.signer.events.on(event, listener);
+      }
+      if (typeof this.subscriber !== "undefined") {
+        this.subscriber.events.on(event, listener);
+      }
+      return;
     }
     this.events.on(event, listener);
   }
 
   public once(event: string, listener: any): void {
     if (event === "message") {
-      if (typeof this.subscriber === "undefined") {
-        throw new Error("Cannot subscribe to messages without configuring Subscriber provider");
+      if (typeof this.subscriber === "undefined" && typeof this.signer === "undefined") {
+        throw new Error(
+          "Cannot subscribe to messages without configuring Signer and/or Subscriber provider",
+        );
       }
-      this.subscriber.events.once(event, listener);
+      if (typeof this.signer !== "undefined") {
+        this.signer.events.once(event, listener);
+      }
+      if (typeof this.subscriber !== "undefined") {
+        this.subscriber.events.once(event, listener);
+      }
+      return;
     }
     this.events.once(event, listener);
   }
 
   public off(event: string, listener: any): void {
+    if (event === "message") {
+      if (typeof this.subscriber === "undefined" && typeof this.signer === "undefined") {
+        throw new Error(
+          "Cannot subscribe to messages without configuring Signer and/or Subscriber provider",
+        );
+      }
+      if (typeof this.signer !== "undefined") {
+        this.signer.events.off(event, listener);
+      }
+      if (typeof this.subscriber !== "undefined") {
+        this.subscriber.events.off(event, listener);
+      }
+      return;
+    }
     this.events.off(event, listener);
   }
 
