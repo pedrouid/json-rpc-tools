@@ -16,37 +16,37 @@ export class JsonRpcRouter implements IJsonRpcRouter {
   }
 
   public isSupported(method: string): boolean {
-    const providerId = this.getRouteProviderId(method);
-    return typeof providerId !== "undefined";
+    const target = this.getRouteTarget(method);
+    return typeof target !== "undefined";
   }
 
-  public getRouteProviderId(method: string): string | undefined {
-    let providerId: string | undefined;
+  public getRouteTarget(method: string): string | undefined {
+    let target: string | undefined;
     const matchingRoute = this.map[method];
     if (matchingRoute) {
-      providerId = matchingRoute;
+      target = matchingRoute;
     }
-    if (typeof providerId === "undefined") {
+    if (typeof target === "undefined") {
       this.getTrailingWildcardRoutes().forEach(route => {
         if (method.startsWith(route)) {
-          providerId = this.map[route];
+          target = this.map[route];
         }
       });
     }
-    if (typeof providerId === "undefined") {
+    if (typeof target === "undefined") {
       this.getLeadingWildcardRoutes().forEach(route => {
         if (method.endsWith(route)) {
-          providerId = this.map[route];
+          target = this.map[route];
         }
       });
     }
-    if (typeof providerId === "undefined") {
+    if (typeof target === "undefined") {
       const defaultRoute = this.map["*"];
       if (typeof defaultRoute !== "undefined") {
-        providerId = this.map[defaultRoute];
+        target = this.map[defaultRoute];
       }
     }
-    return providerId;
+    return target;
   }
 
   public getLeadingWildcardRoutes(): string[] {

@@ -4,7 +4,7 @@ import { IJsonRpcRouter, JsonRpcRoutesConfig } from "./router";
 import { IJsonRpcValidator } from "./validator";
 
 export interface JsonRpcProvidersMap {
-  [providerId: string]: IJsonRpcProvider;
+  [target: string]: IJsonRpcProvider;
 }
 
 export interface BaseMultiServiceProviderConfig {

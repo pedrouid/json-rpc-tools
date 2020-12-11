@@ -17,6 +17,7 @@ import {
   formatJsonRpcError,
   INVALID_REQUEST,
 } from "@json-rpc-tools/utils";
+import { BlockchainSubprovider } from "./subprovider";
 
 function getRoutes(config: BlockchainProviderConfig) {
   const routes: JsonRpcRoutesConfig = {
@@ -49,10 +50,10 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     this.config = config;
     this.router = new JsonRpcRouter(getRoutes(config));
     if (typeof config.signer !== "undefined") {
-      this.signer = new JsonRpcProvider(config.signer.connection);
+      this.signer = new BlockchainSubprovider(this, config.signer.connection);
     }
     if (typeof config.subscriber !== "undefined") {
-      this.subscriber = new JsonRpcProvider(config.subscriber.connection);
+      this.subscriber = new BlockchainSubprovider(this, config.subscriber.connection);
     }
     if (typeof config.validator !== "undefined") {
       this.validator = new JsonRpcValidator(config.validator.schemas);
@@ -106,9 +107,9 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     if (typeof response !== "undefined") {
       throw new Error(response.error.message);
     }
-    const providerId = this.getRouteProviderId(request.method);
-    if (providerId !== "default") {
-      return this.requestSubprovider(providerId, request);
+    const target = this.getRouteTarget(request.method);
+    if (target !== "default") {
+      return this.requestSubprovider(target, request);
     }
     return new Promise(async (resolve, reject) => {
       if (!this.connection.connected) {
@@ -129,21 +130,21 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
 
   // -- Private ----------------------------------------------- //
 
-  private getRouteProviderId(method: string): string {
-    const providerId = this.router.getRouteProviderId(method);
-    if (typeof providerId === "undefined") {
+  private getRouteTarget(method: string): string {
+    const target = this.router.getRouteTarget(method);
+    if (typeof target === "undefined") {
       throw new Error(`Provider does not support method: ${method}`);
     }
-    return providerId;
+    return target;
   }
 
   private async requestSubprovider<Result = any, Params = any>(
-    providerId: string,
+    target: string,
     request: JsonRpcRequest<Params>,
   ): Promise<Result> {
-    const provider = this[providerId] as JsonRpcProvider | undefined;
+    const provider = this[target] as JsonRpcProvider | undefined;
     if (typeof provider === "undefined") {
-      throw new Error(`Missing provider ${providerId} for request with method: ${request.method}`);
+      throw new Error(`Missing provider ${target} for request with method: ${request.method}`);
     }
     return provider.request<Result, Params>(request);
   }

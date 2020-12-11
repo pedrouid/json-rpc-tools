@@ -59,14 +59,14 @@ export class MultiServiceProvider implements IMultiServiceProvider {
   }
 
   public once(event: string, listener: any): void {
-    Object.keys(this.providers).forEach((providerId: string) => {
-      this.providers[providerId].once(event, listener);
+    Object.keys(this.providers).forEach((target: string) => {
+      this.providers[target].once(event, listener);
     });
   }
 
   public off(event: string, listener: any): void {
-    Object.keys(this.providers).forEach((providerId: string) => {
-      this.providers[providerId].off(event, listener);
+    Object.keys(this.providers).forEach((target: string) => {
+      this.providers[target].off(event, listener);
     });
   }
 
@@ -91,11 +91,11 @@ export class MultiServiceProvider implements IMultiServiceProvider {
   }
 
   public getProvider(method: string): IJsonRpcProvider {
-    const providerId = this.router.getRouteProviderId(method);
-    if (typeof providerId === "undefined") {
+    const target = this.router.getRouteTarget(method);
+    if (typeof target === "undefined") {
       throw new Error(`No provider route defined for method: ${method}`);
     }
-    return this.providers[providerId];
+    return this.providers[target];
   }
 
   public async request<Result = any, Params = any>(

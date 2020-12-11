@@ -7,9 +7,10 @@ import {
   formatJsonRpcRequest,
   isJsonRpcError,
   BlockchainJsonRpcConfig,
+  IJsonRpcConnection,
 } from "@json-rpc-tools/utils";
 
-import { BlockchainAuthenticator, BlockchainProvider, ISignerConnection } from "../src";
+import { BlockchainAuthenticator, BlockchainProvider } from "../src";
 
 const ETHEREUM_CHAIN_REFERENCE = "1";
 
@@ -104,7 +105,7 @@ const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
   routes: ETHEREUM_JSONRPC_CONFIG.routes.http,
   signer: {
     routes: ETHEREUM_JSONRPC_CONFIG.routes.signer,
-    connection: {} as ISignerConnection,
+    connection: {} as IJsonRpcConnection,
   },
   validator: {
     schemas: ETHEREUM_JSONRPC_SCHEMA_MAP,

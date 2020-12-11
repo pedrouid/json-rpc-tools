@@ -1,5 +1,5 @@
 export interface JsonRpcRoutesConfig {
-  [providerId: string]: string[];
+  [target: string]: string[];
 }
 export interface JsonRpcRouterMap {
   [route: string]: string;
@@ -12,7 +12,7 @@ export abstract class IJsonRpcRouter {
 
   public abstract isSupported(method: string): boolean;
 
-  public abstract getRouteProviderId(method: string): string | undefined;
+  public abstract getRouteTarget(method: string): string | undefined;
 
   public abstract getLeadingWildcardRoutes(): string[];
 
