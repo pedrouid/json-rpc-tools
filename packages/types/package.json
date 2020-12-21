@@ -61,5 +61,8 @@
     "typescript": "^3.7.5",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "keyvaluestorage": "^0.6.0"
   }
 }

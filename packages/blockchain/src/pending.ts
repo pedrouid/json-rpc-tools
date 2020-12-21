@@ -1,17 +1,17 @@
+import { IKeyValueStorage } from "keyvaluestorage";
 import { JsonRpcRequest, IPendingRequests } from "@json-rpc-tools/utils";
-import { IStore } from "@pedrouid/iso-store";
 
 export class PendingRequests implements IPendingRequests {
   public chainId: string | undefined;
 
   public pending: JsonRpcRequest[] = [];
-  constructor(public store?: IStore) {
-    this.store = store;
+  constructor(public storage?: IKeyValueStorage) {
+    this.storage = storage;
   }
 
   public async init(chainId: string | undefined = this.chainId): Promise<void> {
     this.chainId = chainId;
-    await this.restore(chainId);
+    await this.restorage(chainId);
   }
 
   public async set(request: JsonRpcRequest): Promise<void> {
@@ -38,12 +38,12 @@ export class PendingRequests implements IPendingRequests {
   }
 
   private async persist() {
-    if (typeof this.store === "undefined") return;
-    await this.store.set<JsonRpcRequest[]>(this.getStoreKey(), this.pending);
+    if (typeof this.storage === "undefined") return;
+    await this.storage.setItem<JsonRpcRequest[]>(this.getStoreKey(), this.pending);
   }
 
-  private async restore(chainId: string | undefined = this.chainId) {
-    if (typeof this.store === "undefined") return;
-    this.pending = (await this.store.get<JsonRpcRequest[]>(this.getStoreKey(chainId))) || [];
+  private async restorage(chainId: string | undefined = this.chainId) {
+    if (typeof this.storage === "undefined") return;
+    this.pending = (await this.storage.getItem<JsonRpcRequest[]>(this.getStoreKey(chainId))) || [];
   }
 }

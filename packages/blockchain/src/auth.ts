@@ -21,7 +21,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   constructor(public config: BlockchainAuthenticatorConfig) {
     this.config = config;
     this.provider = config.provider;
-    this.pending = new PendingRequests(config.store);
+    this.pending = new PendingRequests(config.storage);
   }
 
   get chainId(): string {

@@ -1,3 +1,5 @@
+import { IKeyValueStorage } from "keyvaluestorage";
+
 import {
   JsonRpcError,
   JsonRpcRequest,
@@ -5,7 +7,7 @@ import {
   JsonRpcSchemaMap,
   JsonRpcSchemas,
 } from "./jsonrpc";
-import { IEvents, IStore } from "./misc";
+import { IEvents } from "./misc";
 import { IJsonRpcConnection, IJsonRpcProvider } from "./provider";
 import { IJsonRpcRouter, JsonRpcRoutesConfig } from "./router";
 import { IJsonRpcValidator } from "./validator";
@@ -13,7 +15,7 @@ import { IJsonRpcValidator } from "./validator";
 export abstract class IPendingRequests {
   public chainId: string | undefined;
   public abstract pending: JsonRpcRequest[];
-  constructor(public store?: IStore) {}
+  constructor(public storage?: IKeyValueStorage) {}
   public abstract init(chainId?: string): Promise<void>;
   public abstract set(request: JsonRpcRequest): Promise<void>;
   public abstract get(id: number): Promise<JsonRpcRequest | undefined>;
@@ -23,7 +25,7 @@ export abstract class IPendingRequests {
 export interface BlockchainAuthenticatorConfig {
   provider: IBlockchainProvider;
   requiredApproval: string[];
-  store?: IStore;
+  storage?: IKeyValueStorage;
 }
 
 export abstract class IBlockchainAuthenticator extends IEvents {
