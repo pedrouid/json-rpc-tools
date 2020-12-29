@@ -1,4 +1,4 @@
-import { JsonRpcPayload, JsonRpcRequest } from "./jsonrpc";
+import { JsonRpcPayload, JsonRpcRequest, RequestArguments } from "./jsonrpc";
 import { IEvents } from "./misc";
 
 export abstract class IJsonRpcConnection extends IEvents {
@@ -21,6 +21,12 @@ export abstract class IBaseJsonRpcProvider extends IEvents {
   public abstract disconnect(): Promise<void>;
 
   public abstract request<Result = any, Params = any>(
+    request: RequestArguments<Params>,
+  ): Promise<Result>;
+
+  // ---------- Protected ----------------------------------------------- //
+
+  protected abstract requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
   ): Promise<Result>;
 }

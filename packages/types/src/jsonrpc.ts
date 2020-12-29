@@ -22,11 +22,14 @@ export interface JsonRpcSchemas {
   schemas: JsonRpcSchemaMap;
 }
 
-export interface JsonRpcRequest<T = any> {
+export interface RequestArguments<T = any> {
+  method: string;
+  params?: T;
+}
+
+export interface JsonRpcRequest<T = any> extends Required<RequestArguments<T>> {
   id: number;
   jsonrpc: string;
-  method: string;
-  params: T;
 }
 
 export interface JsonRpcResult<T = any> {

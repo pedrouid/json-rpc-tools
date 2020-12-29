@@ -16,6 +16,8 @@ import {
   METHOD_NOT_FOUND,
   formatJsonRpcError,
   INVALID_REQUEST,
+  RequestArguments,
+  formatJsonRpcRequest,
 } from "@json-rpc-tools/utils";
 
 function getRoutes(config: BlockchainProviderConfig) {
@@ -178,6 +180,14 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
   }
 
   public async request<Result = any, Params = any>(
+    request: RequestArguments<Params>,
+  ): Promise<Result> {
+    return this.requestStrict(formatJsonRpcRequest(request.method, request.params || []));
+  }
+
+  // ---------- Protected ----------------------------------------------- //
+
+  protected async requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
   ): Promise<Result> {
     const response = this.assertRequest(request);

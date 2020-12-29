@@ -2,6 +2,7 @@ import { EventEmitter } from "events";
 import difference from "lodash.difference";
 import {
   formatJsonRpcError,
+  formatJsonRpcRequest,
   IJsonRpcProvider,
   IMultiServiceProvider,
   INVALID_REQUEST,
@@ -10,10 +11,11 @@ import {
   JsonRpcRequest,
   METHOD_NOT_FOUND,
   MultiServiceProviderConfig,
+  RequestArguments,
 } from "@json-rpc-tools/utils";
 import JsonRpcValidator from "@json-rpc-tools/validator";
 import JsonRpcRouter from "@json-rpc-tools/router";
-export class MultiServiceProvider implements IMultiServiceProvider {
+export class MultiServiceProvider extends IMultiServiceProvider {
   public events = new EventEmitter();
 
   public providers: JsonRpcProvidersMap;
@@ -21,6 +23,7 @@ export class MultiServiceProvider implements IMultiServiceProvider {
   public validator: JsonRpcValidator | undefined;
 
   constructor(public config: MultiServiceProviderConfig) {
+    super(config);
     this.config = config;
     const routesDiff = difference(Object.keys(config.providers), Object.keys(config.routes));
     if (routesDiff.length) {
@@ -105,6 +108,14 @@ export class MultiServiceProvider implements IMultiServiceProvider {
   }
 
   public async request<Result = any, Params = any>(
+    request: RequestArguments<Params>,
+  ): Promise<Result> {
+    return this.requestStrict(formatJsonRpcRequest(request.method, request.params || []));
+  }
+
+  // ---------- Protected ----------------------------------------------- //
+
+  protected async requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
   ): Promise<Result> {
     const response = this.assertRequest(request);

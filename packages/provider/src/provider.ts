@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import {
+  RequestArguments,
   IJsonRpcProvider,
   IJsonRpcConnection,
   JsonRpcRequest,
@@ -7,6 +8,7 @@ import {
   JsonRpcPayload,
   JsonRpcProviderMessage,
   isJsonRpcResponse,
+  formatJsonRpcRequest,
 } from "@json-rpc-tools/utils";
 
 import { HttpConnection } from "./http";
@@ -48,6 +50,14 @@ export class JsonRpcProvider extends IJsonRpcProvider {
   }
 
   public async request<Result = any, Params = any>(
+    request: RequestArguments<Params>,
+  ): Promise<Result> {
+    return this.requestStrict(formatJsonRpcRequest(request.method, request.params || []));
+  }
+
+  // ---------- Protected ----------------------------------------------- //
+
+  protected async requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
   ): Promise<Result> {
     return new Promise(async (resolve, reject) => {
@@ -66,8 +76,6 @@ export class JsonRpcProvider extends IJsonRpcProvider {
       await this.connection.send(request);
     });
   }
-
-  // ---------- Protected ----------------------------------------------- //
 
   protected setConnection(connection: string | IJsonRpcConnection = this.connection) {
     return typeof connection === "string"
