@@ -43,6 +43,10 @@ export class JsonRpcProvider extends IJsonRpcProvider {
     this.events.off(event, listener);
   }
 
+  public removeListener(event: string, listener: any): void {
+    this.events.removeListener(event, listener);
+  }
+
   public async request<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
   ): Promise<Result> {

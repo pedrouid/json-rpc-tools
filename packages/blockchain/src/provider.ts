@@ -139,6 +139,24 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     this.events.off(event, listener);
   }
 
+  public removeListener(event: string, listener: any): void {
+    if (event === "message") {
+      if (typeof this.subscriber === "undefined" && typeof this.signer === "undefined") {
+        throw new Error(
+          "Cannot subscribe to messages without configuring Signer and/or Subscriber provider",
+        );
+      }
+      if (typeof this.signer !== "undefined") {
+        this.signer.events.removeListener(event, listener);
+      }
+      if (typeof this.subscriber !== "undefined") {
+        this.subscriber.events.removeListener(event, listener);
+      }
+      return;
+    }
+    this.events.removeListener(event, listener);
+  }
+
   public isSupported(method: string): boolean {
     return this.router.isSupported(method);
   }

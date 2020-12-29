@@ -40,6 +40,9 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     this.events.off(event, listener);
   }
 
+  public removeListener(event: string, listener: any): void {
+    this.events.removeListener(event, listener);
+  }
   public async init(): Promise<void> {
     await this.pending.init(this.provider.chainId);
   }

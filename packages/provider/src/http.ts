@@ -33,6 +33,10 @@ export class HttpConnection implements IJsonRpcConnection {
     this.events.off(event, listener);
   }
 
+  public removeListener(event: string, listener: any): void {
+    this.events.removeListener(event, listener);
+  }
+
   public async open(url: string = this.url): Promise<void> {
     this.api = await this.register(url);
   }

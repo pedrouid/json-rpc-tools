@@ -70,6 +70,12 @@ export class MultiServiceProvider implements IMultiServiceProvider {
     });
   }
 
+  public removeListener(event: string, listener: any): void {
+    Object.keys(this.providers).forEach((target: string) => {
+      this.providers[target].removeListener(event, listener);
+    });
+  }
+
   public isSupported(method: string): boolean {
     return this.router.isSupported(method);
   }
