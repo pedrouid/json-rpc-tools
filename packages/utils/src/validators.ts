@@ -8,12 +8,16 @@ import {
   JsonRpcValidationInvalid,
 } from "./types";
 
+export function isJsonRpcPayload(payload: any): payload is JsonRpcPayload {
+  return "id" in payload && "jsonrpc" in payload && payload.jsonrpc === "2.0";
+}
+
 export function isJsonRpcRequest<T = any>(payload: JsonRpcPayload): payload is JsonRpcRequest<T> {
-  return "method" in payload;
+  return isJsonRpcPayload(payload) && "method" in payload;
 }
 
 export function isJsonRpcResponse<T = any>(payload: JsonRpcPayload): payload is JsonRpcResponse<T> {
-  return !isJsonRpcRequest(payload);
+  return isJsonRpcPayload(payload) && ("result" in payload || "error" in payload);
 }
 
 export function isJsonRpcResult<T = any>(payload: JsonRpcPayload): payload is JsonRpcResult<T> {
