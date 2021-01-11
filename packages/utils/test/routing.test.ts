@@ -11,6 +11,7 @@ import {
 
 describe("Routing", () => {
   it("isValidRoute", () => {
+    chai.expect(isValidRoute("eth_chainId")).to.be.true;
     chai.expect(isValidRoute("eth_signTypedData_v1")).to.be.true;
     chai.expect(isValidRoute("eth_signTypedData_*")).to.be.true;
     chai.expect(isValidRoute("*_blockNumber")).to.be.true;
@@ -23,6 +24,7 @@ describe("Routing", () => {
     chai.expect(isValidRoute("eth_sign*Typed")).to.be.false;
   });
   it("isValidDefaultRoute", () => {
+    chai.expect(isValidDefaultRoute("eth_chainId")).to.be.false;
     chai.expect(isValidDefaultRoute("eth_signTypedData_v1")).to.be.false;
     chai.expect(isValidDefaultRoute("eth_signTypedData_*")).to.be.false;
     chai.expect(isValidDefaultRoute("*_blockNumber")).to.be.false;
@@ -35,6 +37,7 @@ describe("Routing", () => {
     chai.expect(isValidDefaultRoute("eth_sign*Typed")).to.be.false;
   });
   it("isValidWildcardRoute", () => {
+    chai.expect(isValidWildcardRoute("eth_chainId")).to.be.false;
     chai.expect(isValidWildcardRoute("eth_signTypedData_v1")).to.be.false;
     chai.expect(isValidWildcardRoute("eth_signTypedData_*")).to.be.true;
     chai.expect(isValidWildcardRoute("*_blockNumber")).to.be.true;
@@ -47,6 +50,7 @@ describe("Routing", () => {
     chai.expect(isValidWildcardRoute("eth_sign*Typed")).to.be.false;
   });
   it("isValidLeadingWildcardRoute", () => {
+    chai.expect(isValidLeadingWildcardRoute("eth_chainId")).to.be.false;
     chai.expect(isValidLeadingWildcardRoute("eth_signTypedData_v1")).to.be.false;
     chai.expect(isValidLeadingWildcardRoute("eth_signTypedData_*")).to.be.false;
     chai.expect(isValidLeadingWildcardRoute("*_blockNumber")).to.be.true;
@@ -59,6 +63,7 @@ describe("Routing", () => {
     chai.expect(isValidLeadingWildcardRoute("eth_sign*Typed")).to.be.false;
   });
   it("isValidTrailingWildcardRoute", () => {
+    chai.expect(isValidLeadingWildcardRoute("eth_chainId")).to.be.false;
     chai.expect(isValidTrailingWildcardRoute("eth_signTypedData_v1")).to.be.false;
     chai.expect(isValidTrailingWildcardRoute("eth_signTypedData_*")).to.be.true;
     chai.expect(isValidTrailingWildcardRoute("*_blockNumber")).to.be.false;

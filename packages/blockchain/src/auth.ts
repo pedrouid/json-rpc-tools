@@ -11,6 +11,7 @@ import {
 } from "@json-rpc-tools/utils";
 
 import { PendingRequests } from "./pending";
+import { timeStamp } from "console";
 
 export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   public events = new EventEmitter();
@@ -69,7 +70,7 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     if (typeof error !== "undefined") {
       return error;
     }
-    if (this.config.requiredApproval.includes(request.method)) {
+    if (this.requiresApproval(request)) {
       await this.pending.set(request);
       this.events.emit("pending_approval", request);
       return new Promise((resolve, reject) => {
@@ -81,5 +82,17 @@ export class BlockchainAuthenticator implements IBlockchainAuthenticator {
     }
     const result = await this.provider.request(request);
     return formatJsonRpcResult(request.id, result);
+  }
+
+  public async assert(request: JsonRpcRequest): Promise<boolean> {
+    const error = this.provider.assertRequest(request);
+    if (typeof error !== "undefined") {
+      throw new Error(error.error.message);
+    }
+    return this.requiresApproval(request);
+  }
+
+  private requiresApproval(request: JsonRpcRequest): boolean {
+    return this.config.requiredApproval.includes(request.method);
   }
 }

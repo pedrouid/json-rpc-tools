@@ -28,14 +28,14 @@ export class JsonRpcRouter implements IJsonRpcRouter {
     }
     if (typeof target === "undefined") {
       this.getTrailingWildcardRoutes().forEach(route => {
-        if (method.startsWith(route)) {
+        if (method.startsWith(route.replace("*", ""))) {
           target = this.map[route];
         }
       });
     }
     if (typeof target === "undefined") {
       this.getLeadingWildcardRoutes().forEach(route => {
-        if (method.endsWith(route)) {
+        if (method.endsWith(route.replace("*", ""))) {
           target = this.map[route];
         }
       });

@@ -32,6 +32,7 @@ export abstract class IBlockchainAuthenticator extends IEvents {
   public abstract chainId: string;
 
   public abstract pending: IPendingRequests;
+
   public abstract provider: IBlockchainProvider;
 
   constructor(public config: BlockchainAuthenticatorConfig) {
@@ -39,6 +40,8 @@ export abstract class IBlockchainAuthenticator extends IEvents {
   }
 
   public abstract init(): Promise<void>;
+
+  public abstract assert(request: JsonRpcRequest): Promise<boolean>;
 
   public abstract approve(request: JsonRpcRequest): Promise<JsonRpcResponse>;
 
