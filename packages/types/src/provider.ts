@@ -3,6 +3,7 @@ import { IEvents } from "./misc";
 
 export abstract class IJsonRpcConnection extends IEvents {
   public abstract connected: boolean;
+  public abstract connecting: boolean;
   constructor(opts?: any) {
     super();
   }

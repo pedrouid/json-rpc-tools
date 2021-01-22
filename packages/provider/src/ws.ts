@@ -13,6 +13,8 @@ export class WsConnection implements IJsonRpcConnection {
 
   private socket: WebSocket | undefined;
 
+  private registering = false;
+
   constructor(public url: string) {
     if (!isWsUrl(url)) {
       throw new Error(`Provided URL is not compatible with WebSocket connection: ${url}`);
@@ -22,6 +24,10 @@ export class WsConnection implements IJsonRpcConnection {
 
   get connected(): boolean {
     return typeof this.socket !== "undefined";
+  }
+
+  get connecting(): boolean {
+    return this.registering;
   }
 
   public on(event: string, listener: any): void {
@@ -65,7 +71,19 @@ export class WsConnection implements IJsonRpcConnection {
     if (!isWsUrl(url)) {
       throw new Error(`Provided URL is not compatible with WebSocket connection: ${url}`);
     }
+    if (this.registering) {
+      return new Promise((resolve, reject) => {
+        this.events.once("open", () => {
+          if (typeof this.socket === "undefined") {
+            return reject(new Error("WebSocket connection is missing or invalid"));
+          }
+          resolve(this.socket);
+        });
+      });
+    }
     this.url = url;
+    this.registering = true;
+
     return new Promise((resolve, reject) => {
       const socket = new WS(url) as WebSocket;
       socket.onopen = () => {
@@ -83,6 +101,7 @@ export class WsConnection implements IJsonRpcConnection {
     socket.onmessage = (event: MessageEvent) => this.onPayload(event);
     socket.onclose = () => this.onClose();
     this.socket = socket;
+    this.registering = false;
     this.events.emit("open");
   }
 

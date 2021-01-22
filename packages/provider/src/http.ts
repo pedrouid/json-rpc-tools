@@ -4,11 +4,14 @@ import { IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
 import { safeJsonParse } from "safe-json-utils";
 
 import { isHttpUrl } from "./url";
+import { rejects } from "assert";
 
 export class HttpConnection implements IJsonRpcConnection {
   public events = new EventEmitter();
 
   private api: AxiosInstance | undefined;
+
+  private registering = false;
 
   constructor(public url: string) {
     if (!isHttpUrl(url)) {
@@ -19,6 +22,10 @@ export class HttpConnection implements IJsonRpcConnection {
 
   get connected(): boolean {
     return typeof this.api !== "undefined";
+  }
+
+  get connecting(): boolean {
+    return this.registering;
   }
 
   public on(event: string, listener: any): void {
@@ -61,7 +68,18 @@ export class HttpConnection implements IJsonRpcConnection {
     if (!isHttpUrl(url)) {
       throw new Error(`Provided URL is not compatible with HTTP connection: ${url}`);
     }
+    if (this.registering) {
+      return new Promise((resolve, reject) => {
+        this.events.once("open", () => {
+          if (typeof this.api === "undefined") {
+            return reject(new Error("HTTP connection is missing or invalid"));
+          }
+          resolve(this.api);
+        });
+      });
+    }
     this.url = url;
+    this.registering = true;
     const api = axios.create({
       baseURL: url,
       timeout: 30000, // 30 secs
@@ -76,6 +94,7 @@ export class HttpConnection implements IJsonRpcConnection {
 
   private onOpen(api: AxiosInstance) {
     this.api = api;
+    this.registering = false;
     this.events.emit("open");
   }
 
