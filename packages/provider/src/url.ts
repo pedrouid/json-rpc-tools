@@ -13,3 +13,7 @@ export function isHttpUrl(url: string) {
 export function isWsUrl(url: string) {
   return matchRegexProtocol(url, WS_REGEX);
 }
+
+export function isLocalhostUrl(url: string) {
+ return new RegExp("wss?://localhost(:\d{2,5})?").test(url);
+}

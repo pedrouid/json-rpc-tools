@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
 import { IJsonRpcConnection, JsonRpcPayload, isJsonRpcResponse } from "@json-rpc-tools/utils";
 
-import { isWsUrl } from "./url";
+import { isWsUrl, isLocalhostUrl } from "./url";
 
 const WS =
   // @ts-ignore
@@ -85,7 +85,7 @@ export class WsConnection implements IJsonRpcConnection {
     this.registering = true;
 
     return new Promise((resolve, reject) => {
-      const socket = new WS(url) as WebSocket;
+      const socket = new WS(url, {rejectUnauthorized: !isLocalhostUrl(url)}) as WebSocket;
       socket.onopen = () => {
         this.onOpen(socket);
         resolve(socket);
