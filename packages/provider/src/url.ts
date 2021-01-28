@@ -15,5 +15,5 @@ export function isWsUrl(url: string) {
 }
 
 export function isLocalhostUrl(url: string) {
- return new RegExp("wss?://localhost(:\d{2,5})?").test(url);
+  return new RegExp("wss?://localhost(:d{2,5})?").test(url);
 }
