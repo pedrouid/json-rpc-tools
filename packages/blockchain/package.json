@@ -38,7 +38,7 @@
     "@json-rpc-tools/router": "^1.5.9",
     "@json-rpc-tools/utils": "^1.5.9",
     "@json-rpc-tools/validator": "^1.5.9",
-    "keyvaluestorage": "^0.6.0"
+    "keyvaluestorage": "^0.7.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",

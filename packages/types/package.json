@@ -63,6 +63,6 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "keyvaluestorage": "^0.6.0"
+    "keyvaluestorage": "^0.7.0"
   }
 }
