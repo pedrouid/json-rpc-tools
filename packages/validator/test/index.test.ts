@@ -91,7 +91,7 @@ const TEST_JSON_RPC_RESPONSE: { [method: string]: JsonRpcResponse } = {
 
 describe("JsonRpcValidator", () => {
   let validator: JsonRpcValidator;
-  beforeAll(() => {
+  before(() => {
     validator = new JsonRpcValidator(ETHEREUM_JSONRPC_METHODS_MAP);
   });
   it("init", async () => {

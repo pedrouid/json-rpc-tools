@@ -114,7 +114,7 @@ const ETHEREUM_PROVIDER_CONFIG: BlockchainProviderConfig = {
 
 describe("BlockchainAuthenticator", () => {
   let authenticator: BlockchainAuthenticator;
-  beforeAll(() => {
+  before(() => {
     const provider = new BlockchainProvider(
       `https://rpc.slock.it/mainnet`,
       ETHEREUM_PROVIDER_CONFIG,

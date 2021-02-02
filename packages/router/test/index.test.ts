@@ -17,7 +17,7 @@ const ETHEREUM_ROUTES = {
 
 describe("@json-rpc-tools/router", () => {
   let router: JsonRpcRouter;
-  beforeAll(() => {
+  before(() => {
     router = new JsonRpcRouter(ETHEREUM_ROUTES);
   });
   it("getRouteTarget", () => {

@@ -1,6 +1,5 @@
 import "mocha";
 import * as chai from "chai";
-import { delay } from "@pedrouid/timestamp";
 
 import {
   isJsonRpcRequest,
