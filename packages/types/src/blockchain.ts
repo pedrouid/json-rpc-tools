@@ -1,4 +1,4 @@
-import { IKeyValueStorage } from "keyvaluestorage";
+import { IKeyValueStorage } from "keyvaluestorage-interface";
 
 import {
   JsonRpcError,
