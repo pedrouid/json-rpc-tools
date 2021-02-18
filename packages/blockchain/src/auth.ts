@@ -11,7 +11,6 @@ import {
 } from "@json-rpc-tools/utils";
 
 import { PendingRequests } from "./pending";
-import { timeStamp } from "console";
 
 export class BlockchainAuthenticator implements IBlockchainAuthenticator {
   public events = new EventEmitter();
