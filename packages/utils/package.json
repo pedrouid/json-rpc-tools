@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/utils",
   "description": "Utilities for JSON-RPC",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/types": "^1.6.1"
+    "@json-rpc-tools/types": "^1.6.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
