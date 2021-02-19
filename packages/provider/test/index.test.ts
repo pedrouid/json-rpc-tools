@@ -6,7 +6,7 @@ import JsonRpcProvider from "../src";
 
 describe("@json-rpc-tools/provider", () => {
   it("HTTP", async () => {
-    const provider = new JsonRpcProvider(`https://rpc.slock.it/mainnet`);
+    const provider = new JsonRpcProvider(`https://api.mycryptoapi.com/eth`);
     const request = formatJsonRpcRequest("eth_chainId", []);
     const result = await provider.request(request);
     chai.expect(!!result).to.be.true;

@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
-import { IJsonRpcConnection, JsonRpcPayload, isJsonRpcResponse } from "@json-rpc-tools/utils";
+import { IJsonRpcConnection, JsonRpcPayload, isReactNative } from "@json-rpc-tools/utils";
 
 import { isWsUrl, isLocalhostUrl } from "./url";
 
@@ -85,7 +85,8 @@ export class WsConnection implements IJsonRpcConnection {
     this.registering = true;
 
     return new Promise((resolve, reject) => {
-      const socket: WebSocket = new WS(url, [], { rejectUnauthorized: !isLocalhostUrl(url) });
+      const opts = !isReactNative() ? { rejectUnauthorized: !isLocalhostUrl(url) } : undefined;
+      const socket: WebSocket = new WS(url, [], opts);
       socket.onopen = () => {
         this.onOpen(socket);
         resolve(socket);
