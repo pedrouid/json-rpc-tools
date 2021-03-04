@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 import JsonRpcProvider, { HttpConnection, WsConnection } from "@json-rpc-tools/provider";
 import JsonRpcRouter from "@json-rpc-tools/router";
-import JsonRpcValidator from "@json-rpc-tools/validator";
 import {
   IBlockchainProvider,
   BlockchainProviderConfig,
@@ -53,6 +52,7 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     this.chainId = config.chainId;
     this.config = config;
     this.router = new JsonRpcRouter(getRoutes(config));
+    this.validator = config.validator;
     if (typeof config.signer !== "undefined") {
       this.signer = new JsonRpcProvider(config.signer.connection);
     }
@@ -61,9 +61,6 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
         // This enforces that url is used as WS for subscriber connection
         typeof connection === "string" ? new WsConnection(connection) : connection,
       );
-    }
-    if (typeof config.validator !== "undefined") {
-      this.validator = new JsonRpcValidator(config.validator.schemas);
     }
   }
 
@@ -167,10 +164,7 @@ export class BlockchainProvider extends JsonRpcProvider implements IBlockchainPr
     if (!this.isSupported(request.method)) {
       return formatJsonRpcError(request.id, METHOD_NOT_FOUND);
     }
-    if (
-      typeof this.validator !== "undefined" &&
-      typeof this.validator.isSupported(request.method)
-    ) {
+    if (typeof this.validator !== "undefined" && this.validator.isSupported(request.method)) {
       if (!this.validator.validate(request)) {
         return formatJsonRpcError(request.id, INVALID_REQUEST);
       }

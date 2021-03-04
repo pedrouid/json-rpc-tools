@@ -74,7 +74,7 @@ export interface BlockchainProviderConfig {
   routes: string[];
   signer?: BlockchainSubproviderConfig;
   subscriber?: BlockchainSubproviderConfig;
-  validator?: JsonRpcSchemas;
+  validator?: IJsonRpcValidator;
 }
 
 export abstract class IBlockchainProvider extends IJsonRpcProvider {
