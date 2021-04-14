@@ -47,6 +47,7 @@ export interface JsonRpcError {
 export interface ErrorResponse {
   code: number;
   message: string;
+  data?: string;
 }
 
 export type JsonRpcResponse<T = any> = JsonRpcResult<T> | JsonRpcError;
