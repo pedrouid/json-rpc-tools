@@ -16,7 +16,7 @@ export function isReservedErrorCode(code: number): boolean {
 }
 
 export function isValidErrorCode(code: number): boolean {
-  return isServerErrorCode(code) || isReservedErrorCode(code);
+  return typeof code === "number";
 }
 
 export function getError(type: string): ErrorResponse {
@@ -44,7 +44,7 @@ export function validateJsonRpcError(response: JsonRpcError): JsonRpcValidation 
   if (!isValidErrorCode(response.error.code)) {
     return {
       valid: false,
-      error: `Invalid error code for JSON-RPC error code: ${response.error.code}`,
+      error: `Invalid error code type for JSON-RPC: ${response.error.code}`,
     };
   }
   if (isReservedErrorCode(response.error.code)) {
@@ -55,7 +55,7 @@ export function validateJsonRpcError(response: JsonRpcError): JsonRpcValidation 
     ) {
       return {
         valid: false,
-        error: `Invalid error message for JSON-RPC error code: ${response.error.code}`,
+        error: `Invalid error code message for JSON-RPC: ${response.error.code}`,
       };
     }
   }

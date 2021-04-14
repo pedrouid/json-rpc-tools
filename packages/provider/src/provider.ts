@@ -35,18 +35,22 @@ export class JsonRpcProvider extends IJsonRpcProvider {
 
   public on(event: string, listener: any): void {
     this.events.on(event, listener);
+    this.connection.on(event, listener);
   }
 
   public once(event: string, listener: any): void {
     this.events.once(event, listener);
+    this.connection.once(event, listener);
   }
 
   public off(event: string, listener: any): void {
     this.events.off(event, listener);
+    this.connection.off(event, listener);
   }
 
   public removeListener(event: string, listener: any): void {
     this.events.removeListener(event, listener);
+    this.connection.removeListener(event, listener);
   }
 
   public async request<Result = any, Params = any>(
@@ -104,6 +108,7 @@ export class JsonRpcProvider extends IJsonRpcProvider {
     await this.connection.open();
     this.connection.on("payload", (payload: JsonRpcPayload) => this.onPayload(payload));
     this.connection.on("close", () => this.events.emit("disconnect"));
+    this.connection.on("error", () => this.events.emit("error"));
     this.events.emit("connect");
   }
 
