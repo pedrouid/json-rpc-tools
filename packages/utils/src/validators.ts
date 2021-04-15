@@ -17,7 +17,7 @@ export function isJsonRpcRequest<T = any>(payload: JsonRpcPayload): payload is J
 }
 
 export function isJsonRpcResponse<T = any>(payload: JsonRpcPayload): payload is JsonRpcResponse<T> {
-  return isJsonRpcPayload(payload) && ("result" in payload || "error" in payload);
+  return isJsonRpcPayload(payload) && (isJsonRpcResult(payload) || isJsonRpcError(payload));
 }
 
 export function isJsonRpcResult<T = any>(payload: JsonRpcPayload): payload is JsonRpcResult<T> {

@@ -1,10 +1,9 @@
 import { EventEmitter } from "events";
 import axios, { AxiosInstance } from "axios";
-import { IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
+import { formatJsonRpcError, IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
 import { safeJsonParse } from "safe-json-utils";
 
 import { isHttpUrl } from "./url";
-import { rejects } from "assert";
 
 export class HttpConnection implements IJsonRpcConnection {
   public events = new EventEmitter();
@@ -59,7 +58,7 @@ export class HttpConnection implements IJsonRpcConnection {
     this.api
       .post("/", payload)
       .then(res => this.onPayload(res))
-      .catch(event => this.events.emit("error", event));
+      .catch(err => this.onError(payload.id, err));
   }
 
   // ---------- Private ----------------------------------------------- //
@@ -82,7 +81,7 @@ export class HttpConnection implements IJsonRpcConnection {
     this.registering = true;
     const api = axios.create({
       baseURL: url,
-      timeout: 30000, // 30 secs
+      timeout: 30_000, // 30 secs
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -106,6 +105,12 @@ export class HttpConnection implements IJsonRpcConnection {
   private onPayload(e: { data: any }) {
     if (typeof e.data === "undefined") return;
     const payload: JsonRpcPayload = typeof e.data === "string" ? safeJsonParse(e.data) : e.data;
+    this.events.emit("payload", payload);
+  }
+
+  private onError(id: number, e: Error) {
+    const message = e.message || e.toString();
+    const payload = formatJsonRpcError(id, message);
     this.events.emit("payload", payload);
   }
 }

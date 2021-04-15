@@ -9,6 +9,7 @@ import {
   JsonRpcProviderMessage,
   isJsonRpcResponse,
   formatJsonRpcRequest,
+  isJsonRpcError,
 } from "@json-rpc-tools/utils";
 
 import { HttpConnection } from "./http";
@@ -69,11 +70,10 @@ export class JsonRpcProvider extends IJsonRpcProvider {
         await this.open();
       }
       this.events.on(`${request.id}`, response => {
-        if (response.error) {
+        if (isJsonRpcError(response)) {
           reject(response.error.message);
         } else {
-          const { result } = response as JsonRpcResult<Result>;
-          resolve(result);
+          resolve(response.result);
         }
       });
 
