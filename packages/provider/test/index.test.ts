@@ -24,7 +24,7 @@ describe("@json-rpc-tools/provider", () => {
       .to.eventually.be.rejectedWith("getaddrinfo ENOTFOUND random.domain.that.does.not.exist");
   });
   it("WS (success)", async () => {
-    const provider = new JsonRpcProvider(`ws://localhost:5555`);
+    const provider = new JsonRpcProvider(`wss://staging.walletconnect.org`);
     const result = await provider.request({
       method: "waku_subscribe",
       params: {
@@ -34,7 +34,7 @@ describe("@json-rpc-tools/provider", () => {
     chai.expect(!!result).to.be.true;
   });
   it("WS (error)", async () => {
-    const provider = new JsonRpcProvider(`ws://localhost:5555`);
+    const provider = new JsonRpcProvider(`wss://staging.walletconnect.org`);
     const promise = provider.request({
       method: "waku_subscribe",
       params: {},
