@@ -4,7 +4,6 @@ import {
   IJsonRpcProvider,
   IJsonRpcConnection,
   JsonRpcRequest,
-  JsonRpcResult,
   JsonRpcPayload,
   JsonRpcProviderMessage,
   isJsonRpcResponse,
@@ -36,22 +35,18 @@ export class JsonRpcProvider extends IJsonRpcProvider {
 
   public on(event: string, listener: any): void {
     this.events.on(event, listener);
-    this.connection.on(event, listener);
   }
 
   public once(event: string, listener: any): void {
     this.events.once(event, listener);
-    this.connection.once(event, listener);
   }
 
   public off(event: string, listener: any): void {
     this.events.off(event, listener);
-    this.connection.off(event, listener);
   }
 
   public removeListener(event: string, listener: any): void {
     this.events.removeListener(event, listener);
-    this.connection.removeListener(event, listener);
   }
 
   public async request<Result = any, Params = any>(
