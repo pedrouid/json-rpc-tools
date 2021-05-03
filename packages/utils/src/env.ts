@@ -1,19 +1,6 @@
-export function isReactNative(): boolean {
-  return (
-    typeof document === "undefined" &&
-    typeof navigator !== "undefined" &&
-    navigator.product === "ReactNative"
-  );
-}
+import { isNode } from "@pedrouid/environment";
 
-export function isNodeJs(): boolean {
-  return (
-    typeof process !== "undefined" &&
-    typeof process.versions !== "undefined" &&
-    typeof process.versions.node !== "undefined"
-  );
-}
+// for backwards-compatibility
+export const isNodeJs = isNode;
 
-export function isBrowser(): boolean {
-  return !isReactNative() && !isNodeJs();
-}
+export * from "@pedrouid/environment";
