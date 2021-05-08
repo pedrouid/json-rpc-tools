@@ -51,14 +51,16 @@ export class JsonRpcProvider extends IJsonRpcProvider {
 
   public async request<Result = any, Params = any>(
     request: RequestArguments<Params>,
+    context?: any,
   ): Promise<Result> {
-    return this.requestStrict(formatJsonRpcRequest(request.method, request.params || []));
+    return this.requestStrict(formatJsonRpcRequest(request.method, request.params || []), context);
   }
 
   // ---------- Protected ----------------------------------------------- //
 
   protected async requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
+    context?: any,
   ): Promise<Result> {
     return new Promise(async (resolve, reject) => {
       if (!this.connection.connected) {

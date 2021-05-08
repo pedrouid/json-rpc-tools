@@ -9,7 +9,7 @@ export abstract class IJsonRpcConnection extends IEvents {
   }
   public abstract open(opts?: any): Promise<void>;
   public abstract close(): Promise<void>;
-  public abstract send(payload: JsonRpcPayload): Promise<void>;
+  public abstract send(payload: JsonRpcPayload, context?: any): Promise<void>;
 }
 
 export abstract class IBaseJsonRpcProvider extends IEvents {
@@ -23,12 +23,14 @@ export abstract class IBaseJsonRpcProvider extends IEvents {
 
   public abstract request<Result = any, Params = any>(
     request: RequestArguments<Params>,
+    context?: any,
   ): Promise<Result>;
 
   // ---------- Protected ----------------------------------------------- //
 
   protected abstract requestStrict<Result = any, Params = any>(
     request: JsonRpcRequest<Params>,
+    context?: any,
   ): Promise<Result>;
 }
 
