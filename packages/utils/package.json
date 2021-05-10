@@ -34,7 +34,8 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/types": "^1.7.4"
+    "@json-rpc-tools/types": "^1.7.4",
+    "@pedrouid/environment": "^1.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
@@ -44,7 +45,6 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
-    "@pedrouid/environment": "^1.0.0",
     "@pedrouid/timestamp": "^1.0.0",
     "@types/chai": "^4.2.14",
     "@types/jest": "^22.2.3",
