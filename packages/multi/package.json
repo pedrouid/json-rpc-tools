@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/multi",
   "description": "Multi-Service Provider for JSON-RPC",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -34,9 +34,9 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/router": "^1.7.4",
-    "@json-rpc-tools/utils": "^1.7.4",
-    "@json-rpc-tools/validator": "^1.7.4",
+    "@json-rpc-tools/router": "^1.7.5",
+    "@json-rpc-tools/utils": "^1.7.5",
+    "@json-rpc-tools/validator": "^1.7.5",
     "lodash.difference": "^4.5.0"
   },
   "devDependencies": {
