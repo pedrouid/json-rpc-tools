@@ -87,7 +87,13 @@ export class HttpConnection implements IJsonRpcConnection {
         "Content-Type": "application/json",
       },
     });
-    this.onOpen(api);
+    try {
+      await api.post("/", { id: 1, jsonrpc: "2.0", method: "test", params: [] });
+      this.onOpen(api);
+    } catch (e) {
+      this.onClose();
+      throw new Error(`Unavailable HTTP RPC url at ${url}`);
+    }
     return api;
   }
 

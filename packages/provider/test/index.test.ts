@@ -21,7 +21,9 @@ describe("@json-rpc-tools/provider", () => {
     const promise = provider.request({ method: "test_method" });
     await chai
       .expect(promise)
-      .to.eventually.be.rejectedWith("getaddrinfo ENOTFOUND random.domain.that.does.not.exist");
+      .to.eventually.be.rejectedWith(
+        "Unavailable HTTP RPC url at http://random.domain.that.does.not.exist",
+      );
   });
   it("WS (success)", async () => {
     const provider = new JsonRpcProvider(`wss://staging.walletconnect.org`);

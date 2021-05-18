@@ -64,7 +64,11 @@ export class JsonRpcProvider extends IJsonRpcProvider {
   ): Promise<Result> {
     return new Promise(async (resolve, reject) => {
       if (!this.connection.connected) {
-        await this.open();
+        try {
+          await this.open();
+        } catch (e) {
+          reject(e.message);
+        }
       }
       this.events.on(`${request.id}`, response => {
         if (isJsonRpcError(response)) {
