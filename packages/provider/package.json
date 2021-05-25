@@ -6,28 +6,7 @@
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
   "main": "dist/cjs/index.js",
-  "exports": {
-    ".": {
-      "node": "./dist/cjs/index.js",
-      "browser": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
-    },
-    "./lite": {
-      "node": "./dist/cjs/lite.js",
-      "browser": "./dist/esm/lite.js",
-      "default": "./dist/cjs/lite.js"
-    },
-    "./http": {
-      "node": "./dist/cjs/http.js",
-      "browser": "./dist/esm/http.js",
-      "default": "./dist/cjs/http.js"
-    },
-    "./ws": {
-      "node": "./dist/cjs/ws.js",
-      "browser": "./dist/esm/ws.js",
-      "default": "./dist/cjs/ws.js"
-    }
-  },
+  "browser": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
   "unpkg": "dist/umd/index.min.js",
   "files": [
