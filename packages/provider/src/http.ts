@@ -1,14 +1,19 @@
 import { EventEmitter } from "events";
-import axios, { AxiosInstance } from "axios";
+import fetch from "cross-fetch";
 import { formatJsonRpcError, IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
-import { safeJsonParse } from "safe-json-utils";
+import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
 
 import { isHttpUrl } from "./url";
+
+const DEFAULT_HTTP_HEADERS = {
+  Accept: "application/json",
+  "Content-Type": "application/json",
+};
 
 export class HttpConnection implements IJsonRpcConnection {
   public events = new EventEmitter();
 
-  private api: AxiosInstance | undefined;
+  private isAvailable = false;
 
   private registering = false;
 
@@ -20,7 +25,7 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   get connected(): boolean {
-    return typeof this.api !== "undefined";
+    return this.isAvailable;
   }
 
   get connecting(): boolean {
@@ -44,7 +49,7 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   public async open(url: string = this.url): Promise<void> {
-    this.api = await this.register(url);
+    await this.register(url);
   }
 
   public async close(): Promise<void> {
@@ -52,59 +57,55 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
-    if (typeof this.api === "undefined") {
-      this.api = await this.register();
-    }
-    this.api
-      .post("/", payload)
-      .then(res => this.onPayload(res))
+    fetch(this.url, {
+      headers: DEFAULT_HTTP_HEADERS,
+      method: "POST",
+      body: safeJsonStringify(payload),
+    })
+      .then(res => res.json())
+      .then(data => this.onPayload({ data }))
       .catch(err => this.onError(payload.id, err));
   }
 
   // ---------- Private ----------------------------------------------- //
 
-  private async register(url = this.url): Promise<AxiosInstance> {
+  private async register(url = this.url): Promise<void> {
     if (!isHttpUrl(url)) {
       throw new Error(`Provided URL is not compatible with HTTP connection: ${url}`);
     }
     if (this.registering) {
       return new Promise((resolve, reject) => {
         this.events.once("open", () => {
-          if (typeof this.api === "undefined") {
+          if (typeof this.isAvailable === "undefined") {
             return reject(new Error("HTTP connection is missing or invalid"));
           }
-          resolve(this.api);
+          resolve();
         });
       });
     }
     this.url = url;
     this.registering = true;
-    const api = axios.create({
-      baseURL: url,
-      timeout: 30_000, // 30 secs
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
     try {
-      await api.post("/", { id: 1, jsonrpc: "2.0", method: "test", params: [] });
-      this.onOpen(api);
+      await fetch(url, {
+        headers: DEFAULT_HTTP_HEADERS,
+        method: "POST",
+        body: safeJsonStringify({ id: 1, jsonrpc: "2.0", method: "test", params: [] }),
+      });
+      this.onOpen();
     } catch (e) {
       this.onClose();
       throw new Error(`Unavailable HTTP RPC url at ${url}`);
     }
-    return api;
   }
 
-  private onOpen(api: AxiosInstance) {
-    this.api = api;
+  private onOpen() {
+    this.isAvailable = true;
     this.registering = false;
     this.events.emit("open");
   }
 
   private onClose() {
-    this.api = undefined;
+    this.isAvailable = false;
     this.events.emit("close");
   }
 
