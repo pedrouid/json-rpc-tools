@@ -29,7 +29,9 @@
     "new-version": "lerna version --no-git-tag-version",
     "pre-publish": "run-s new-version reset commit-version",
     "npm-publish": "lerna exec -- npm publish --access public",
-    "publish": "run-s pre-publish npm-publish"
+    "npm-publish:beta": "lerna exec -- npm publish --access public --tag beta",
+    "publish": "run-s pre-publish npm-publish",
+    "publish:beta": "run-s pre-publish npm-publish:beta"
   },
   "repository": {
     "type": "git",
