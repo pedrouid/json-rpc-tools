@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/blockchain",
   "description": "Blockchain Provider and Authenticator for JSON-RPC",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -36,9 +36,9 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/provider": "^2.0.0-beta.1",
-    "@json-rpc-tools/router": "^2.0.0-beta.1",
-    "@json-rpc-tools/utils": "^2.0.0-beta.1",
+    "@json-rpc-tools/provider": "^2.0.0-beta.2",
+    "@json-rpc-tools/router": "^2.0.0-beta.2",
+    "@json-rpc-tools/utils": "^2.0.0-beta.2",
     "keyvaluestorage": "^0.7.1"
   },
   "devDependencies": {
@@ -49,7 +49,7 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
-    "@json-rpc-tools/validator": "^2.0.0-beta.1",
+    "@json-rpc-tools/validator": "^2.0.0-beta.2",
     "@types/chai": "^4.2.14",
     "@types/jest": "^22.2.3",
     "@types/mocha": "^8.2.0",
