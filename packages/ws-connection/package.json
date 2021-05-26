@@ -1,6 +1,6 @@
 {
-  "name": "@json-rpc-tools/validator",
-  "description": "Validator for JSON-RPC",
+  "name": "@json-rpc-tools/ws-connection",
+  "description": "WS Connection for JSON-RPC",
   "version": "2.0.0-beta.2",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@json-rpc-tools/utils": "^2.0.0-beta.2",
-    "jsonschema": "^1.4.0"
+    "safe-json-utils": "^1.1.1",
+    "ws": "^7.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
@@ -46,12 +47,14 @@
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
     "@types/chai": "^4.2.14",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/jest": "^22.2.3",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.2",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "core-js": "^3.6.5",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.10.0",

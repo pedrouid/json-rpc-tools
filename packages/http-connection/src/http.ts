@@ -1,9 +1,12 @@
 import { EventEmitter } from "events";
 import fetch from "cross-fetch";
-import { formatJsonRpcError, IJsonRpcConnection, JsonRpcPayload } from "@json-rpc-tools/utils";
 import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
-
-import { isHttpUrl } from "./url";
+import {
+  formatJsonRpcError,
+  IJsonRpcConnection,
+  JsonRpcPayload,
+  isHttpUrl,
+} from "@json-rpc-tools/utils";
 
 const DEFAULT_HTTP_HEADERS = {
   Accept: "application/json",
@@ -121,3 +124,5 @@ export class HttpConnection implements IJsonRpcConnection {
     this.events.emit("payload", payload);
   }
 }
+
+export default HttpConnection;

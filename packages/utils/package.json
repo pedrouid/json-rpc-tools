@@ -20,9 +20,7 @@
     "tools",
     "types",
     "utils",
-    "signer",
-    "provider",
-    "blockchain"
+    "provider"
   ],
   "scripts": {
     "clean": "rm -rf dist",

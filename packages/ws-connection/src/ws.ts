@@ -1,8 +1,12 @@
 import { EventEmitter } from "events";
 import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
-import { IJsonRpcConnection, JsonRpcPayload, isReactNative } from "@json-rpc-tools/utils";
-
-import { isWsUrl, isLocalhostUrl } from "./url";
+import {
+  IJsonRpcConnection,
+  JsonRpcPayload,
+  isReactNative,
+  isWsUrl,
+  isLocalhostUrl,
+} from "@json-rpc-tools/utils";
 
 const WS =
   // @ts-ignore
@@ -117,3 +121,5 @@ export class WsConnection implements IJsonRpcConnection {
     this.events.emit("payload", payload);
   }
 }
+
+export default WsConnection;

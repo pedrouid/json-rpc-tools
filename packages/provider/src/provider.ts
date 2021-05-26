@@ -11,16 +11,12 @@ import {
   isJsonRpcError,
 } from "@json-rpc-tools/utils";
 
-import { isHttpUrl } from "./url";
-import { HttpConnection } from "./http";
-import { WsConnection } from "./ws";
-
 export class JsonRpcProvider extends IJsonRpcProvider {
   public events = new EventEmitter();
 
   public connection: IJsonRpcConnection;
 
-  constructor(connection: string | IJsonRpcConnection) {
+  constructor(connection: IJsonRpcConnection) {
     super(connection);
     this.connection = this.setConnection(connection);
   }
@@ -82,12 +78,8 @@ export class JsonRpcProvider extends IJsonRpcProvider {
     });
   }
 
-  protected setConnection(connection: string | IJsonRpcConnection = this.connection) {
-    return typeof connection === "string"
-      ? isHttpUrl(connection)
-        ? new HttpConnection(connection)
-        : new WsConnection(connection)
-      : connection;
+  protected setConnection(connection: IJsonRpcConnection = this.connection) {
+    return connection;
   }
 
   protected onPayload(payload: JsonRpcPayload): void {

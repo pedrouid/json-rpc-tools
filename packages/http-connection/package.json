@@ -1,6 +1,6 @@
 {
-  "name": "@json-rpc-tools/blockchain",
-  "description": "Blockchain Provider and Authenticator for JSON-RPC",
+  "name": "@json-rpc-tools/http-connection",
+  "description": "HTTP Connection for JSON-RPC",
   "version": "2.0.0-beta.2",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
@@ -20,9 +20,7 @@
     "tools",
     "types",
     "utils",
-    "signer",
-    "provider",
-    "blockchain"
+    "provider"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -36,10 +34,9 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/provider": "^2.0.0-beta.2",
-    "@json-rpc-tools/router": "^2.0.0-beta.2",
     "@json-rpc-tools/utils": "^2.0.0-beta.2",
-    "keyvaluestorage": "^0.7.1"
+    "cross-fetch": "^3.1.4",
+    "safe-json-utils": "^1.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
@@ -49,14 +46,15 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
-    "@json-rpc-tools/validator": "^2.0.0-beta.2",
     "@types/chai": "^4.2.14",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/jest": "^22.2.3",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.2",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "core-js": "^3.6.5",
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^6.10.0",

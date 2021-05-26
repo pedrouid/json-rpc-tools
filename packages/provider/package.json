@@ -20,9 +20,7 @@
     "tools",
     "types",
     "utils",
-    "signer",
-    "provider",
-    "blockchain"
+    "provider"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -37,9 +35,7 @@
   },
   "dependencies": {
     "@json-rpc-tools/utils": "^2.0.0-beta.2",
-    "cross-fetch": "^3.1.4",
-    "safe-json-utils": "^1.1.1",
-    "ws": "^7.4.0"
+    "safe-json-utils": "^1.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
@@ -49,6 +45,8 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
+    "@json-rpc-tools/http-connection": "^2.0.0-beta.2",
+    "@json-rpc-tools/ws-connection": "^2.0.0-beta.2",
     "@types/chai": "^4.2.14",
     "@types/chai-as-promised": "^7.1.0",
     "@types/jest": "^22.2.3",
