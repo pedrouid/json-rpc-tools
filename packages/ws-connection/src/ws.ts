@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 import { safeJsonParse, safeJsonStringify } from "safe-json-utils";
 import {
+  formatJsonRpcError,
   IJsonRpcConnection,
   JsonRpcPayload,
   isReactNative,
@@ -51,7 +52,7 @@ export class WsConnection implements IJsonRpcConnection {
   }
 
   public async open(url: string = this.url): Promise<void> {
-    this.socket = await this.register(url);
+    await this.register(url);
   }
 
   public async close(): Promise<void> {
@@ -63,10 +64,14 @@ export class WsConnection implements IJsonRpcConnection {
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
-    if (typeof this.socket === "undefined") {
-      this.socket = await this.register();
+    try {
+      if (typeof this.socket === "undefined") {
+        this.socket = await this.register();
+      }
+      this.socket.send(safeJsonStringify(payload));
+    } catch (e) {
+      this.onError(payload.id, e);
     }
-    this.socket.send(safeJsonStringify(payload));
   }
 
   // ---------- Private ----------------------------------------------- //
@@ -77,6 +82,9 @@ export class WsConnection implements IJsonRpcConnection {
     }
     if (this.registering) {
       return new Promise((resolve, reject) => {
+        this.events.once("error", error => {
+          reject(error);
+        });
         this.events.once("open", () => {
           if (typeof this.socket === "undefined") {
             return reject(new Error("WebSocket connection is missing or invalid"));
@@ -91,13 +99,17 @@ export class WsConnection implements IJsonRpcConnection {
     return new Promise((resolve, reject) => {
       const opts = !isReactNative() ? { rejectUnauthorized: !isLocalhostUrl(url) } : undefined;
       const socket: WebSocket = new WS(url, [], opts);
+      socket.onerror = (event: Event) => {
+        const error = (event as ErrorEvent).message.includes("getaddrinfo ENOTFOUND")
+          ? new Error(`Unavailable WS RPC url at ${this.url}`)
+          : (event as ErrorEvent).error;
+        this.events.emit("error", error);
+        this.onClose();
+        reject(error);
+      };
       socket.onopen = () => {
         this.onOpen(socket);
         resolve(socket);
-      };
-      socket.onerror = (event: Event) => {
-        this.events.emit("error", event);
-        reject(event);
       };
     });
   }
@@ -105,6 +117,12 @@ export class WsConnection implements IJsonRpcConnection {
   private onOpen(socket: WebSocket) {
     socket.onmessage = (event: MessageEvent) => this.onPayload(event);
     socket.onclose = () => this.onClose();
+    socket.onerror = (event: Event) => {
+      const error = (event as ErrorEvent).message.includes("getaddrinfo ENOTFOUND")
+        ? new Error(`Unavailable WS RPC url at ${this.url}`)
+        : (event as ErrorEvent).error;
+      this.events.emit("error", error);
+    };
     this.socket = socket;
     this.registering = false;
     this.events.emit("open");
@@ -112,12 +130,20 @@ export class WsConnection implements IJsonRpcConnection {
 
   private onClose() {
     this.socket = undefined;
+    this.registering = false;
     this.events.emit("close");
   }
 
   private onPayload(e: { data: any }) {
     if (typeof e.data === "undefined") return;
     const payload: JsonRpcPayload = typeof e.data === "string" ? safeJsonParse(e.data) : e.data;
+    this.events.emit("payload", payload);
+  }
+
+  private onError(id: number, error: Error) {
+    const message = error.message || error.toString();
+    const payload = formatJsonRpcError(id, message);
+    this.events.emit("error", error);
     this.events.emit("payload", payload);
   }
 }

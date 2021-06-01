@@ -26,7 +26,7 @@ describe("Payload Id", () => {
       Array(10)
         .fill(0)
         .map(async () => {
-          await delay(50);
+          await delay(Math.floor(100 * Math.random()));
           return payloadId();
         }),
     );

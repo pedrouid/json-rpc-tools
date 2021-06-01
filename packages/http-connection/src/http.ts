@@ -13,6 +13,13 @@ const DEFAULT_HTTP_HEADERS = {
   "Content-Type": "application/json",
 };
 
+const DEFAULT_HTTP_METHOD = "POST";
+
+const DEFAULT_FETCH_OPTS = {
+  headers: DEFAULT_HTTP_HEADERS,
+  method: DEFAULT_HTTP_METHOD,
+};
+
 export class HttpConnection implements IJsonRpcConnection {
   public events = new EventEmitter();
 
@@ -60,11 +67,8 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
-    fetch(this.url, {
-      headers: DEFAULT_HTTP_HEADERS,
-      method: "POST",
-      body: safeJsonStringify(payload),
-    })
+    const body = safeJsonStringify(payload);
+    fetch(this.url, { ...DEFAULT_FETCH_OPTS, body })
       .then(res => res.json())
       .then(data => this.onPayload({ data }))
       .catch(err => this.onError(payload.id, err));
@@ -78,6 +82,9 @@ export class HttpConnection implements IJsonRpcConnection {
     }
     if (this.registering) {
       return new Promise((resolve, reject) => {
+        this.events.once("error", error => {
+          reject(error);
+        });
         this.events.once("open", () => {
           if (typeof this.isAvailable === "undefined") {
             return reject(new Error("HTTP connection is missing or invalid"));
@@ -89,15 +96,16 @@ export class HttpConnection implements IJsonRpcConnection {
     this.url = url;
     this.registering = true;
     try {
-      await fetch(url, {
-        headers: DEFAULT_HTTP_HEADERS,
-        method: "POST",
-        body: safeJsonStringify({ id: 1, jsonrpc: "2.0", method: "test", params: [] }),
-      });
+      const body = safeJsonStringify({ id: 1, jsonrpc: "2.0", method: "test", params: [] });
+      await fetch(url, { ...DEFAULT_FETCH_OPTS, body });
       this.onOpen();
     } catch (e) {
+      const error = e.message.includes("getaddrinfo ENOTFOUND")
+        ? new Error(`Unavailable HTTP RPC url at ${this.url}`)
+        : e;
+      this.events.emit("error", error);
       this.onClose();
-      throw new Error(`Unavailable HTTP RPC url at ${url}`);
+      throw error;
     }
   }
 
@@ -109,6 +117,7 @@ export class HttpConnection implements IJsonRpcConnection {
 
   private onClose() {
     this.isAvailable = false;
+    this.registering = false;
     this.events.emit("close");
   }
 
@@ -118,9 +127,10 @@ export class HttpConnection implements IJsonRpcConnection {
     this.events.emit("payload", payload);
   }
 
-  private onError(id: number, e: Error) {
-    const message = e.message || e.toString();
+  private onError(id: number, error: Error) {
+    const message = error.message || error.toString();
     const payload = formatJsonRpcError(id, message);
+    this.events.emit("error", error);
     this.events.emit("payload", payload);
   }
 }
