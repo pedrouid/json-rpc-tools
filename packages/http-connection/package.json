@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/http-connection",
   "description": "HTTP Connection for JSON-RPC",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/utils": "^2.0.0-beta.3",
+    "@json-rpc-tools/utils": "^2.0.0-beta.4",
     "cross-fetch": "^3.1.4",
     "safe-json-utils": "^1.1.1"
   },
