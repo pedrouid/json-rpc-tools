@@ -57,7 +57,7 @@ export class WsConnection implements IJsonRpcConnection {
 
   public async close(): Promise<void> {
     if (typeof this.socket === "undefined") {
-      throw new Error("Already disconnected");
+      throw new Error("Connection already closed");
     }
     this.socket.close();
     this.onClose();

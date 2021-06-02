@@ -63,15 +63,25 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   public async close(): Promise<void> {
+    if (!this.isAvailable) {
+      throw new Error("Connection already closed");
+    }
     this.onClose();
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
-    const body = safeJsonStringify(payload);
-    fetch(this.url, { ...DEFAULT_FETCH_OPTS, body })
-      .then(res => res.json())
-      .then(data => this.onPayload({ data }))
-      .catch(err => this.onError(payload.id, err));
+    try {
+      if (!this.isAvailable) {
+        await this.register();
+      }
+      const body = safeJsonStringify(payload);
+      fetch(this.url, { ...DEFAULT_FETCH_OPTS, body })
+        .then(res => res.json())
+        .then(data => this.onPayload({ data }))
+        .catch(err => this.onError(payload.id, err));
+    } catch (e) {
+      this.onError(payload.id, e);
+    }
   }
 
   // ---------- Private ----------------------------------------------- //
