@@ -6,6 +6,7 @@ import {
   IJsonRpcConnection,
   JsonRpcPayload,
   isHttpUrl,
+  parseConnectionError,
 } from "@json-rpc-tools/utils";
 
 const DEFAULT_HTTP_HEADERS = {
@@ -143,9 +144,7 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   private parseError(e: Error, url = this.url) {
-    return e.message.includes("getaddrinfo ENOTFOUND")
-      ? new Error(`Unavailable HTTP RPC url at ${url}`)
-      : e;
+    return parseConnectionError(e, url, "HTTP");
   }
 }
 

@@ -7,6 +7,7 @@ import {
   isReactNative,
   isWsUrl,
   isLocalhostUrl,
+  parseConnectionError,
 } from "@json-rpc-tools/utils";
 
 const WS =
@@ -145,9 +146,7 @@ export class WsConnection implements IJsonRpcConnection {
   }
 
   private parseError(e: Error, url = this.url) {
-    return e.message.includes("getaddrinfo ENOTFOUND")
-      ? new Error(`Unavailable WS RPC url at ${url}`)
-      : e;
+    return parseConnectionError(e, url, "WS");
   }
 }
 
