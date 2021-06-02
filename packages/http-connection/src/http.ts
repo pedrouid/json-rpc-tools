@@ -75,10 +75,9 @@ export class HttpConnection implements IJsonRpcConnection {
         await this.register();
       }
       const body = safeJsonStringify(payload);
-      fetch(this.url, { ...DEFAULT_FETCH_OPTS, body })
-        .then(res => res.json())
-        .then(data => this.onPayload({ data }))
-        .catch(err => this.onError(payload.id, err));
+      const res = await fetch(this.url, { ...DEFAULT_FETCH_OPTS, body });
+      const data = await res.json();
+      this.onPayload({ data });
     } catch (e) {
       this.onError(payload.id, e);
     }
