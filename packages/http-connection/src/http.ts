@@ -100,9 +100,7 @@ export class HttpConnection implements IJsonRpcConnection {
       await fetch(url, { ...DEFAULT_FETCH_OPTS, body });
       this.onOpen();
     } catch (e) {
-      const error = e.message.includes("getaddrinfo ENOTFOUND")
-        ? new Error(`Unavailable HTTP RPC url at ${this.url}`)
-        : e;
+      const error = this.parseError(e);
       this.events.emit("error", error);
       this.onClose();
       throw error;
@@ -127,11 +125,18 @@ export class HttpConnection implements IJsonRpcConnection {
     this.events.emit("payload", payload);
   }
 
-  private onError(id: number, error: Error) {
+  private onError(id: number, e: Error) {
+    const error = this.parseError(e);
     const message = error.message || error.toString();
     const payload = formatJsonRpcError(id, message);
     this.events.emit("error", error);
     this.events.emit("payload", payload);
+  }
+
+  private parseError(e: Error, url = this.url) {
+    return e.message.includes("getaddrinfo ENOTFOUND")
+      ? new Error(`Unavailable HTTP RPC url at ${url}`)
+      : e;
   }
 }
 

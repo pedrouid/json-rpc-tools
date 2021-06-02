@@ -16,8 +16,6 @@ const TEST_ETH_REQUEST = {
 };
 const TEST_ETH_RESULT = "0x2a";
 
-const TEST_RANDOM_REQUEST = { method: "test_method", params: [] };
-
 const TEST_WAKU_REQUEST = {
   method: "waku_subscribe",
   params: {
@@ -56,16 +54,26 @@ describe("@json-rpc-tools/provider", () => {
     it("Throws error when receives json-rpc error", async () => {
       const connection = new HttpConnection(TEST_URL.http.good);
       const provider = new JsonRpcProvider(connection);
-      const promise = provider.request(TEST_RANDOM_REQUEST);
+      const promise = provider.request({ ...TEST_ETH_REQUEST, method: "test_method" });
       await chai.expect(promise).to.eventually.be.rejectedWith(`Method not found`);
     });
     it("Throws when connecting to unavailable host", async () => {
       const connection = new HttpConnection(TEST_URL.http.bad);
       const provider = new JsonRpcProvider(connection);
-      const promise = provider.request(TEST_RANDOM_REQUEST);
+      const promise = provider.request(TEST_ETH_REQUEST);
       await chai
         .expect(promise)
         .to.eventually.be.rejectedWith(`Unavailable HTTP RPC url at ${TEST_URL.http.bad}`);
+    });
+    it("Reconnect with new provided host url", async () => {
+      const connection = new HttpConnection(TEST_URL.http.bad);
+      const provider = new JsonRpcProvider(connection);
+      chai.expect((provider.connection as HttpConnection).url).to.equal(TEST_URL.http.bad);
+      await provider.connect(TEST_URL.http.good);
+      chai.expect((provider.connection as HttpConnection).url).to.equal(TEST_URL.http.good);
+      const result = await provider.request(TEST_ETH_REQUEST);
+      chai.expect(!!result).to.be.true;
+      chai.expect(result).to.eql(TEST_ETH_RESULT);
     });
   });
   describe("WS", () => {
@@ -90,14 +98,23 @@ describe("@json-rpc-tools/provider", () => {
         .expect(promise)
         .to.eventually.be.rejectedWith("JSON-RPC Request has invalid subscribe params");
     });
-    // it("Throws when connecting to unavailable host", async () => {
-    //   const connection = new WsConnection(TEST_URL.ws.bad);
-    //   const provider = new JsonRpcProvider(connection);
-    //   await provider.connect();
-    //   // const promise = provider.request(TEST_RANDOM_REQUEST);
-    //   // await chai
-    //   //   .expect(promise)
-    //   //   .to.eventually.be.rejectedWith(`Unavailable HTTP RPC url at ${TEST_URL.http.bad}`);
-    // });
+    // FIXME: WsConnection not catching unvailable host error
+    it.skip("Throws when connecting to unavailable host", async () => {
+      const connection = new WsConnection(TEST_URL.ws.bad);
+      const provider = new JsonRpcProvider(connection);
+      const promise = provider.request(TEST_WAKU_REQUEST);
+      await chai
+        .expect(promise)
+        .to.eventually.be.rejectedWith(`Unavailable WS RPC url at ${TEST_URL.ws.bad}`);
+    });
+    it("Reconnect with new provided host url", async () => {
+      const connection = new WsConnection(TEST_URL.ws.bad);
+      const provider = new JsonRpcProvider(connection);
+      chai.expect((provider.connection as WsConnection).url).to.equal(TEST_URL.ws.bad);
+      await provider.connect(TEST_URL.ws.good);
+      chai.expect((provider.connection as WsConnection).url).to.equal(TEST_URL.ws.good);
+      const result = await provider.request(TEST_WAKU_REQUEST);
+      chai.expect(!!result).to.be.true;
+    });
   });
 });

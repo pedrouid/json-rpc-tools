@@ -99,17 +99,15 @@ export class WsConnection implements IJsonRpcConnection {
     return new Promise((resolve, reject) => {
       const opts = !isReactNative() ? { rejectUnauthorized: !isLocalhostUrl(url) } : undefined;
       const socket: WebSocket = new WS(url, [], opts);
-      socket.onerror = (event: Event) => {
-        const error = (event as ErrorEvent).message.includes("getaddrinfo ENOTFOUND")
-          ? new Error(`Unavailable WS RPC url at ${this.url}`)
-          : (event as ErrorEvent).error;
-        this.events.emit("error", error);
-        this.onClose();
-        reject(error);
-      };
       socket.onopen = () => {
         this.onOpen(socket);
         resolve(socket);
+      };
+      socket.onerror = (event: Event) => {
+        const error = this.parseError((event as ErrorEvent).error);
+        this.events.emit("error", error);
+        this.onClose();
+        reject(error);
       };
     });
   }
@@ -118,9 +116,7 @@ export class WsConnection implements IJsonRpcConnection {
     socket.onmessage = (event: MessageEvent) => this.onPayload(event);
     socket.onclose = () => this.onClose();
     socket.onerror = (event: Event) => {
-      const error = (event as ErrorEvent).message.includes("getaddrinfo ENOTFOUND")
-        ? new Error(`Unavailable WS RPC url at ${this.url}`)
-        : (event as ErrorEvent).error;
+      const error = this.parseError((event as ErrorEvent).error);
       this.events.emit("error", error);
     };
     this.socket = socket;
@@ -140,11 +136,18 @@ export class WsConnection implements IJsonRpcConnection {
     this.events.emit("payload", payload);
   }
 
-  private onError(id: number, error: Error) {
+  private onError(id: number, e: Error) {
+    const error = this.parseError(e);
     const message = error.message || error.toString();
     const payload = formatJsonRpcError(id, message);
     this.events.emit("error", error);
     this.events.emit("payload", payload);
+  }
+
+  private parseError(e: Error, url = this.url) {
+    return e.message.includes("getaddrinfo ENOTFOUND")
+      ? new Error(`Unavailable WS RPC url at ${url}`)
+      : e;
   }
 }
 

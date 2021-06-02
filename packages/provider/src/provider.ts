@@ -97,7 +97,11 @@ export class JsonRpcProvider extends IJsonRpcProvider {
   protected async open(connection: string | IJsonRpcConnection = this.connection) {
     if (this.connection === connection && this.connection.connected) return;
     if (this.connection.connected) this.close();
-    this.connection = this.setConnection();
+    if (typeof connection === "string") {
+      await this.connection.open(connection);
+      connection = this.connection;
+    }
+    this.connection = this.setConnection(connection);
     await this.connection.open();
     this.connection.on("payload", (payload: JsonRpcPayload) => this.onPayload(payload));
     this.connection.on("close", () => this.events.emit("disconnect"));
