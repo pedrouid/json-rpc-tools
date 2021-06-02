@@ -98,7 +98,6 @@ describe("@json-rpc-tools/provider", () => {
         .expect(promise)
         .to.eventually.be.rejectedWith("JSON-RPC Request has invalid subscribe params");
     });
-    // FIXME: WsConnection not catching unvailable host error
     it("Throws when connecting to unavailable host", async () => {
       const connection = new WsConnection(TEST_URL.ws.bad);
       const provider = new JsonRpcProvider(connection);
