@@ -63,7 +63,7 @@ export class JsonRpcProvider extends IJsonRpcProvider {
         try {
           await this.open();
         } catch (e) {
-          reject(e.message);
+          reject(e);
         }
       }
       this.events.on(`${request.id}`, response => {
@@ -73,8 +73,11 @@ export class JsonRpcProvider extends IJsonRpcProvider {
           resolve(response.result);
         }
       });
-
-      await this.connection.send(request);
+      try {
+        await this.connection.send(request);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 

@@ -71,10 +71,10 @@ export class HttpConnection implements IJsonRpcConnection {
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
+    if (!this.isAvailable) {
+      await this.register();
+    }
     try {
-      if (!this.isAvailable) {
-        await this.register();
-      }
       const body = safeJsonStringify(payload);
       const res = await fetch(this.url, { ...DEFAULT_FETCH_OPTS, body });
       const data = await res.json();
@@ -92,7 +92,7 @@ export class HttpConnection implements IJsonRpcConnection {
     }
     if (this.registering) {
       return new Promise((resolve, reject) => {
-        this.events.once("error", error => {
+        this.events.once("register_error", error => {
           reject(error);
         });
         this.events.once("open", () => {
@@ -111,7 +111,7 @@ export class HttpConnection implements IJsonRpcConnection {
       this.onOpen();
     } catch (e) {
       const error = this.parseError(e);
-      this.events.emit("error", error);
+      this.events.emit("register_error", error);
       this.onClose();
       throw error;
     }
@@ -139,7 +139,6 @@ export class HttpConnection implements IJsonRpcConnection {
     const error = this.parseError(e);
     const message = error.message || error.toString();
     const payload = formatJsonRpcError(id, message);
-    this.events.emit("error", error);
     this.events.emit("payload", payload);
   }
 

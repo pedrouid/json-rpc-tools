@@ -65,10 +65,10 @@ export class WsConnection implements IJsonRpcConnection {
   }
 
   public async send(payload: JsonRpcPayload, context?: any): Promise<void> {
+    if (typeof this.socket === "undefined") {
+      this.socket = await this.register();
+    }
     try {
-      if (typeof this.socket === "undefined") {
-        this.socket = await this.register();
-      }
       this.socket.send(safeJsonStringify(payload));
     } catch (e) {
       this.onError(payload.id, e);
@@ -83,7 +83,7 @@ export class WsConnection implements IJsonRpcConnection {
     }
     if (this.registering) {
       return new Promise((resolve, reject) => {
-        this.events.once("error", error => {
+        this.events.once("register_error", error => {
           reject(error);
         });
         this.events.once("open", () => {
@@ -106,7 +106,7 @@ export class WsConnection implements IJsonRpcConnection {
       };
       socket.onerror = (event: Event) => {
         const error = this.parseError((event as ErrorEvent).error);
-        this.events.emit("error", error);
+        this.events.emit("register_error", error);
         this.onClose();
         reject(error);
       };
@@ -141,7 +141,6 @@ export class WsConnection implements IJsonRpcConnection {
     const error = this.parseError(e);
     const message = error.message || error.toString();
     const payload = formatJsonRpcError(id, message);
-    this.events.emit("error", error);
     this.events.emit("payload", payload);
   }
 
