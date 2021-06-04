@@ -1,16 +1,6 @@
-import {
-  getError,
-  getErrorByCode,
-  isReservedErrorCode,
-  isServerErrorCode,
-} from "./error";
+import { getError, getErrorByCode, isReservedErrorCode, isServerErrorCode } from "./error";
 import { INTERNAL_ERROR, SERVER_ERROR } from "./constants";
-import {
-  ErrorResponse,
-  JsonRpcError,
-  JsonRpcRequest,
-  JsonRpcResult,
-} from "./types";
+import { ErrorResponse, JsonRpcError, JsonRpcRequest, JsonRpcResult } from "./types";
 
 export function payloadId(): number {
   const date = Date.now() * Math.pow(10, 3);
@@ -21,7 +11,7 @@ export function payloadId(): number {
 export function formatJsonRpcRequest<T = any>(
   method: string,
   params: T,
-  id?: number
+  id?: number,
 ): JsonRpcRequest<T> {
   return {
     id: id || payloadId(),
@@ -31,10 +21,7 @@ export function formatJsonRpcRequest<T = any>(
   };
 }
 
-export function formatJsonRpcResult<T = any>(
-  id: number,
-  result: T
-): JsonRpcResult<T> {
+export function formatJsonRpcResult<T = any>(id: number, result: T): JsonRpcResult<T> {
   return {
     id,
     jsonrpc: "2.0",
@@ -42,10 +29,7 @@ export function formatJsonRpcResult<T = any>(
   };
 }
 
-export function formatJsonRpcError(
-  id: number,
-  error?: string | ErrorResponse
-): JsonRpcError {
+export function formatJsonRpcError(id: number, error?: string | ErrorResponse): JsonRpcError {
   return {
     id,
     jsonrpc: "2.0",
@@ -53,9 +37,7 @@ export function formatJsonRpcError(
   };
 }
 
-export function formatErrorMessage(
-  error?: string | ErrorResponse
-): ErrorResponse {
+export function formatErrorMessage(error?: string | ErrorResponse): ErrorResponse {
   if (typeof error === "undefined") {
     return getError(INTERNAL_ERROR);
   }
@@ -67,9 +49,6 @@ export function formatErrorMessage(
   }
   if (isReservedErrorCode(error.code)) {
     error = getErrorByCode(error.code);
-  }
-  if (!isServerErrorCode(error.code)) {
-    throw new Error("Error code is not in server code range");
   }
   return error;
 }

@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/provider",
   "description": "Provider for JSON-RPC",
-  "version": "2.0.0-beta.9",
+  "version": "2.0.0-beta.10",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/utils": "^2.0.0-beta.9",
+    "@json-rpc-tools/utils": "^2.0.0-beta.10",
     "safe-json-utils": "^1.1.1"
   },
   "devDependencies": {
@@ -45,8 +45,8 @@
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.12.1",
     "@babel/register": "^7.12.1",
-    "@json-rpc-tools/http-connection": "^2.0.0-beta.9",
-    "@json-rpc-tools/ws-connection": "^2.0.0-beta.9",
+    "@json-rpc-tools/http-connection": "^2.0.0-beta.10",
+    "@json-rpc-tools/ws-connection": "^2.0.0-beta.10",
     "@types/chai": "^4.2.14",
     "@types/chai-as-promised": "^7.1.0",
     "@types/jest": "^22.2.3",

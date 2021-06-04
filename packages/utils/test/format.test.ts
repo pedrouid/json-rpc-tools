@@ -37,6 +37,11 @@ describe("Formatters", () => {
     const result = formatJsonRpcError(TEST_ID, TEST_ERROR_MESSAGE);
     const expected = TEST_JSONRPC_ERROR;
     chai.expect(isEqual(result, expected)).to.be.true;
+    // should also accept positive integers
+    const input = { code: 4001, message: "User rejected request." };
+    const output = formatJsonRpcError(TEST_ID, input);
+    const jsonrpc = { id: TEST_ID, jsonrpc: "2.0", error: input };
+    chai.expect(isEqual(output, jsonrpc)).to.be.true;
   });
 
   it("formatErrorMessage", () => {
