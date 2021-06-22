@@ -1,7 +1,7 @@
 {
   "name": "@json-rpc-tools/utils",
   "description": "Utilities for JSON-RPC",
-  "version": "2.0.0-beta.10",
+  "version": "2.0.0-beta.11",
   "author": "Pedro Gomes <github.com/pedrouid>",
   "homepage": "https://github.com/pedrouid/json-rpc-tools/",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "lint": "eslint -c '../../.eslintrc' --fix './src/**/*.ts'"
   },
   "dependencies": {
-    "@json-rpc-tools/types": "^2.0.0-beta.10",
+    "@json-rpc-tools/types": "^2.0.0-beta.11",
     "@pedrouid/environment": "^1.0.1"
   },
   "devDependencies": {
