@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@json-rpc-tools/utils": "^2.0.0-beta.10",
-    "safe-json-utils": "^1.1.1",
+    "safe-json-utils": "^2.0.0-beta.0",
     "ws": "^7.4.0"
   },
   "devDependencies": {
