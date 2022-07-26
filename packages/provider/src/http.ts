@@ -56,7 +56,7 @@ export class HttpConnection implements IJsonRpcConnection {
       this.api = await this.register();
     }
     this.api
-      .post("/", payload)
+      .post("", payload)
       .then(res => this.onPayload(res))
       .catch(err => this.onError(payload.id, err));
   }
