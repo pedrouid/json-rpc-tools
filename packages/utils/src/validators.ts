@@ -25,7 +25,10 @@ export function isJsonRpcResult<T = any>(payload: JsonRpcPayload): payload is Js
 }
 
 export function isJsonRpcError(payload: JsonRpcPayload): payload is JsonRpcError {
-  return "error" in payload;
+  if ("error" in payload && payload.error) {
+    return typeof payload.error.code === "number" && typeof payload.error.message === "string";
+  }
+  return false;
 }
 
 export function isJsonRpcValidationInvalid(
